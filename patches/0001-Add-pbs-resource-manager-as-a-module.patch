@@ -1,0 +1,65 @@
+From 6f9551172835c69b56e21d5b8a0eb1f874127717 Mon Sep 17 00:00:00 2001
+From: Utkarsh <utkarsh.maheshwari@altair.com>
+Date: Wed, 29 Aug 2018 19:09:01 +0530
+Subject: [PATCH] Add pbs resource manager as a module
+
+---
+ assembly/pom.xml                                               | 10 ++++++++++
+ .../java/org/apache/spark/launcher/AbstractCommandBuilder.java |  1 +
+ pom.xml                                                        |  7 +++++++
+ 3 files changed, 18 insertions(+)
+
+diff --git a/assembly/pom.xml b/assembly/pom.xml
+index 9608c96..c3c88de 100644
+--- a/assembly/pom.xml
++++ b/assembly/pom.xml
+@@ -149,6 +149,16 @@
+       </dependencies>
+     </profile>
+     <profile>
++      <id>pbs</id>
++      <dependencies>
++        <dependency>
++          <groupId>org.apache.spark</groupId>
++          <artifactId>spark-pbs_0.0.1</artifactId>
++          <version>${project.version}</version>
++        </dependency>
++      </dependencies>
++    </profile>
++    <profile>
+       <id>kubernetes</id>
+       <dependencies>
+         <dependency>
+diff --git a/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java b/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java
+index ce24400..6e74368 100644
+--- a/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java
++++ b/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java
+@@ -159,6 +159,7 @@ abstract class AbstractCommandBuilder {
+         "repl",
+         "resource-managers/mesos",
+         "resource-managers/yarn",
++        "resource-managers/pbs",
+         "sql/catalyst",
+         "sql/core",
+         "sql/hive",
+diff --git a/pom.xml b/pom.xml
+index 8abdb70..76649fe 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -2723,6 +2723,13 @@
+     </profile>
+ 
+     <profile>
++      <id>pbs</id>
++      <modules>
++        <module>resource-managers/pbs</module>
++      </modules>
++    </profile>
++
++    <profile>
+       <id>hive-thriftserver</id>
+       <modules>
+         <module>sql/hive-thriftserver</module>
+-- 
+2.7.4
+
