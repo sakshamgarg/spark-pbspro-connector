@@ -8,8 +8,13 @@ In the spark project root, punch in these commands:
 git clone https://github.com/UtkarshMe/Spark-PBSPro resource-managers/pbs
 
 # Apply patches from the `patches` folder to spark (in the root directory).
-git am resource-managers/pbs/patches/Add-pbs-resource-manager-as-a-module.patch
+git am resource-managers/pbs/patches/*
 
 # Build!
 build/mvn -DskipTests -Ppbs package
+```
+
+You can run Spark on the PBS cluster as follows:
+```bash
+./bin/spark-shell --master pbs://host:port
 ```

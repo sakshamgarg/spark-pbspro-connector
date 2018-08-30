@@ -1,7 +1,7 @@
 From 6f9551172835c69b56e21d5b8a0eb1f874127717 Mon Sep 17 00:00:00 2001
 From: Utkarsh <utkarsh.maheshwari@altair.com>
 Date: Wed, 29 Aug 2018 19:09:01 +0530
-Subject: [PATCH] Add pbs resource manager as a module
+Subject: [PATCH 1/2] Add pbs resource manager as a module
 
 ---
  assembly/pom.xml                                               | 10 ++++++++++
