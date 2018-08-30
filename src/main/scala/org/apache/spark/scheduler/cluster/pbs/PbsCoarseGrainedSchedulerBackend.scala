@@ -3,15 +3,14 @@ package org.apache.spark.scheduler.cluster.pbs
 import scala.concurrent.Future
 
 import org.apache.spark.{SecurityManager, SparkConf, SparkContext}
-import org.apache.spark.scheduler.TaskSchedulerImpl
+import org.apache.spark.scheduler.{TaskScheduler, TaskSchedulerImpl}
 import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
 
 private[spark] class PbsCoarseGrainedSchedulerBackend(
-    scheduler: TaskSchedulerImpl,
+    scheduler: TaskScheduler,
     sc: SparkContext,
-    master: String,
-    securityManager: SecurityManager)
-  extends CoarseGrainedSchedulerBackend(scheduler, sc.env.rpcEnv) {
+    masterURL: String)
+  extends CoarseGrainedSchedulerBackend(scheduler.asInstanceOf[TaskSchedulerImpl], sc.env.rpcEnv) {
 
   override def start() {
     // TODO
