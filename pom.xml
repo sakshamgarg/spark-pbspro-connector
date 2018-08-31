@@ -44,6 +44,14 @@
     </dependency>
 
     <dependency>
+      <groupId>org.pbspro.pbs</groupId>
+      <artifactId>pbs-scala_0.0.1</artifactId>
+      <version>0.0.1</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/pbs-scala/target/pbs-scala-0.0.1.jar</systemPath>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-tags_${scala.binary.version}</artifactId>
       <type>test-jar</type>
