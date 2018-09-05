@@ -1,31 +1,17 @@
 package org.apache.spark.scheduler.cluster.pbs
 
-import org.pbspro.pbs.PBS
+import org.apache.spark.executor.PbsExecutorDriver
+
+import org.pbspro.pbs.{PBS, Offer}
 
 private[pbs] class PbsSchedulerDriver() {
 
   /**
    * Register with pbs and initialize stuff.
    */
-  def init() {
-  }
+  def init() {}
 
-  /**
-   * Submit a qsub which will act as an Executor.
-   *
-   * @return The Executor ID
-   */
-  def createExecutor(): String = {
-    null
-  }
-
-  /**
-   * Kill the Executor job.
-   *
-   * @param id ID of the executor
-   * @return if the Executor was killed
-   */
-  def killExecutor(id: String): Boolean = {
-    true
-  }
+  def reviveOffers() {}
+  def acceptOffer(offer: Offer) {}
+  def declineOffer(offer: Offer) {}
 }
