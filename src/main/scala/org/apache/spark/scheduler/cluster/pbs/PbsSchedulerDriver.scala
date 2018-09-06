@@ -1,10 +1,10 @@
 package org.apache.spark.scheduler.cluster.pbs
 
-import org.apache.spark.executor.PbsExecutorDriver
+import org.apache.spark.SparkContext
 
-import org.pbspro.pbs.{PBS, Offer}
+//import org.pbspro.pbs.{PBS, Offer}
 
-private[pbs] class PbsSchedulerDriver() {
+private[pbs] class PbsSchedulerDriver(sparkContext: SparkContext) {
 
   /**
    * Register with pbs and initialize stuff.
@@ -12,6 +12,6 @@ private[pbs] class PbsSchedulerDriver() {
   def init() {}
 
   def reviveOffers() {}
-  def acceptOffer(offer: Offer) {}
-  def declineOffer(offer: Offer) {}
+  //def acceptOffer(offer: Offer) {}
+  //def declineOffer(offer: Offer) {}
 }

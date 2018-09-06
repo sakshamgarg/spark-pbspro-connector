@@ -6,26 +6,30 @@ import org.apache.spark.{SecurityManager, SparkConf, SparkContext}
 import org.apache.spark.scheduler.{TaskScheduler, TaskSchedulerImpl}
 import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
 
-import org.apache.spark.executor.{PbsExecutorDriver, PbsExecutorInfo}
-
-import org.pbspro.pbs.Offer
+import org.apache.spark.executor.PbsExecutorInfo
 
 private[spark] class PbsCoarseGrainedSchedulerBackend(
     scheduler: TaskScheduler,
-    sc: SparkContext,
+    sparkContext: SparkContext,
     masterURL: String)
-  extends CoarseGrainedSchedulerBackend(scheduler.asInstanceOf[TaskSchedulerImpl], sc.env.rpcEnv) {
+  extends CoarseGrainedSchedulerBackend(
+    scheduler.asInstanceOf[TaskSchedulerImpl],
+    sparkContext.env.rpcEnv) {
 
-  private val driver = new PbsSchedulerDriver()
-  private val executorDriver = new PbsExecutorDriver()
+  private val driver = new PbsSchedulerDriver(sparkContext)
+
+  /* TODO: Get this from conf or something */
+  private val initialExecutors = 2
 
   /**
-   * Start and initialize a scheduler driver.
+   * Start the scheduler and initialize dependent components.
    */
   override def start() {
     logInfo("Starting PBS Scheduler backend")
     super.start()
     driver.init()
+    logInfo("Starting initial " + initialExecutors + " executors")
+    PbsSchedulerUtils.startExecutors(sparkContext, initialExecutors)
   }
 
   /**
@@ -33,6 +37,17 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
    */
   override def stop() {
     logInfo("Stopping PBS Scheduler backend")
+  }
+
+  /**
+   * Check if we have enough for our need (not for want... we can never have enough for our want).
+   *
+   * @return true if enough resources registered
+   */
+  override def sufficientResourcesRegistered(): Boolean = {
+    logInfo("sufficientResourcesRegistered")
+    /* TODO */
+    true
   }
 
   /**
@@ -44,7 +59,7 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
   override def doKillExecutors(executorIds: Seq[String]): Future[Boolean] = Future.successful {
     for (executor <- executorIds) {
       logInfo("Killing executor: " + executor)
-      executorDriver.kill(executor)
+      //executorDriver.kill(executor)
     }
     true
   }
@@ -61,18 +76,7 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
    */
   override def doRequestTotalExecutors(requestedTotal: Int): Future[Boolean] = Future.successful {
     logInfo(requestedTotal + " executors requested")
-
-    // FIXME: check for already allocated executors
-
-    for (i <- 0 to requestedTotal) {
-      val executorId = "id" // FIXME
-
-      executorDriver.spawn(executorId) match {
-        case Some(executorInfo: PbsExecutorInfo) =>
-        case None =>
-      }
-    }
-    true
+    PbsSchedulerUtils.startExecutors(sparkContext, requestedTotal)
   }
 
 }
