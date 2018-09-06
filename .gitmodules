@@ -1,3 +1,0 @@
-[submodule "lib/pbs-scala"]
-	path = lib/pbs-scala
-	url = https://github.com/UtkarshMe/pbs-scala
