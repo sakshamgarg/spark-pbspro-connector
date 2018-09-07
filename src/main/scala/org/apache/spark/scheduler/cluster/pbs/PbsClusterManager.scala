@@ -2,13 +2,14 @@ package org.apache.spark.scheduler.cluster.pbs
 
 import org.apache.spark.SparkContext
 import org.apache.spark.scheduler.{ExternalClusterManager, SchedulerBackend, TaskScheduler, TaskSchedulerImpl}
+import org.apache.spark.internal.Logging
 
 /**
  * Cluster Manager responsible for handling PBSPro Scheduler.
  *
  * See also: org/apache/spark/scheduler/ExternalClusterManager.scala in Spark core code.
  */
-private[spark] class PbsClusterManager extends ExternalClusterManager {
+private[spark] class PbsClusterManager extends ExternalClusterManager with Logging {
 
   /**
    * Check if we can create scheduler components for the given URL

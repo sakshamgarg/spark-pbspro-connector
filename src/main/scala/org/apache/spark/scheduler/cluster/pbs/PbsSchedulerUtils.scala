@@ -4,10 +4,15 @@ import java.io.File
 
 import scala.sys.process._
 
+import org.apache.spark.rpc.RpcEndpointAddress
 import org.apache.spark.SparkContext
 import org.apache.spark.executor.PbsExecutorInfo
 
+import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
+
 private[pbs] object PbsSchedulerUtils {
+
+  private var last_task = 0
 
   /**
    * Start an Executor.
@@ -16,23 +21,38 @@ private[pbs] object PbsSchedulerUtils {
    * @return Executor info for the started executor
    */
   private def newExecutor(sparkContext: SparkContext): Option[PbsExecutorInfo] = {
-    val sparkHome = sparkContext.getSparkHome().toString()
-    val runScript = new File("./bin/spark-class").getPath
-    val environ = ""
-    val opts = "--driver-url ubuntu:33487" +
-        "--hostname ubuntu" +
-        "--cores 2" +
-        "--app-id 123" +
-        "--worker-url ubuntu:13245" +
-        "--user-class-path file://" +
-        "--executor-id 1234"
+    val driverUrl = RpcEndpointAddress(
+      sparkContext.conf.get("spark.driver.host"),
+      sparkContext.conf.get("spark.driver.port").toInt,
+      CoarseGrainedSchedulerBackend.ENDPOINT_NAME).toString
 
-    val command = "%s \"%s\" org.apache.spark.executor.PbsCoarseGrainedExecutorBackend %s"
-      .format(environ, runScript, opts)
+    val environ = ""                                        // TODO
+    val executorHostname = "ubuntu"                         // TODO
+    val taskId = last_task                                  // TODO
+    last_task += 1
+    val appId = "APPID"                                     // TODO
+    val numCores = "3"                                      // TODO
+    val sparkHome = sparkContext.getSparkHome() match {     // TODO
+      case Some(home) =>
+        home
+      case None =>
+        "/home/utkmah/code/spark/" // FIXME
+    }
 
-    val cmd = "qsub -- %s".format(command)
+    val runScript = new File(sparkHome, "bin/spark-class").getPath
+
+    val opts = s"--driver-url $driverUrl" +
+        s" --hostname $executorHostname" +
+        s" --cores $numCores" +
+        s" --app-id $appId" +
+        //s" --worker-url ubuntu:13245" +
+        //s" --user-class-path file://" +
+        s" --executor-id $taskId"
+
+    val command = s"$runScript org.apache.spark.executor.PbsCoarseGrainedExecutorBackend $opts"
+
+    val cmd = s"/opt/pbs/bin/qsub -N spark-job-$appId-$taskId -l select=1:ncpus=$numCores -- $command"
     val out = cmd.!!
-    println(out)
     None
   }
 

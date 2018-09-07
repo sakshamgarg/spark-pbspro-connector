@@ -16,5 +16,5 @@ build/mvn -DskipTests -Ppbs package
 
 You can run Spark on the PBS cluster as follows:
 ```bash
-./bin/spark-shell --master pbs://host:port
+./bin/spark-shell --master pbs
 ```
