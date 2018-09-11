@@ -22,8 +22,7 @@ private[spark] class PbsCoarseGrainedExecutorBackend(
     hostname,
     cores,
     userClassPath,
-    env)
-  with Logging {
+    env) {
 
   //override def statusUpdate(taskId: Long, state: TaskState.TaskState, data: ByteBuffer) {
   //}

@@ -23,6 +23,7 @@ private[spark] class PbsClusterManager extends ExternalClusterManager with Loggi
    * Create Task Scheduler according to the given SparkContext
    */
   override def createTaskScheduler(sc: SparkContext, masterURL: String): TaskScheduler = {
+    logDebug("Creating new TaskScheduler")
     new TaskSchedulerImpl(sc)
   }
 
@@ -33,6 +34,7 @@ private[spark] class PbsClusterManager extends ExternalClusterManager with Loggi
       masterURL: String,
       scheduler: TaskScheduler): SchedulerBackend = {
     // TODO: Check and allow for a fine grained scheduler if needed.
+    logDebug("Creating new SchedulerBackend")
     new PbsCoarseGrainedSchedulerBackend(scheduler, sc, masterURL)
   }
 
@@ -40,6 +42,7 @@ private[spark] class PbsClusterManager extends ExternalClusterManager with Loggi
    * Initialize the Task Scheduler and Scheduler Backend (after they are created).
    */
   override def initialize(scheduler: TaskScheduler, backend: SchedulerBackend): Unit = {
+    logDebug("Initializing Cluster Manager")
     scheduler.asInstanceOf[TaskSchedulerImpl].initialize(backend)
   }
 }

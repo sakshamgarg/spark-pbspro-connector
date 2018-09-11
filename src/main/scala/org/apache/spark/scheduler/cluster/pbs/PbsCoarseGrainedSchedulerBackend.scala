@@ -5,6 +5,7 @@ import scala.concurrent.Future
 import org.apache.spark.{SecurityManager, SparkConf, SparkContext}
 import org.apache.spark.scheduler.{TaskScheduler, TaskSchedulerImpl}
 import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
+import org.apache.spark.internal.Logging
 
 import org.apache.spark.executor.PbsExecutorInfo
 
@@ -14,7 +15,7 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
     masterURL: String)
   extends CoarseGrainedSchedulerBackend(
     scheduler.asInstanceOf[TaskSchedulerImpl],
-    sparkContext.env.rpcEnv) {
+    sparkContext.env.rpcEnv) with Logging {
 
   private val driver = new PbsSchedulerDriver(sparkContext)
 
