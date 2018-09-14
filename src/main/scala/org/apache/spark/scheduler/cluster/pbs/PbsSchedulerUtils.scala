@@ -31,8 +31,8 @@ private[pbs] object PbsSchedulerUtils {
     val taskId = last_task                                  // TODO
     last_task += 1
     val appId = "APPID"                                     // TODO
-    val numCores = "3"                                      // TODO
-    val sparkHome = sparkContext.getSparkHome() match {     // TODO
+    val numCores = sparkContext.conf.getOption("spark.executor.cores").getOrElse(3)
+    val sparkHome = sparkContext.getSparkHome() match {
       case Some(home) =>
         home
       case None =>

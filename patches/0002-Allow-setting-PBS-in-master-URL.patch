@@ -1,7 +1,7 @@
 From d86ff281fd819a1d24a628668b8afb3aaabb3205 Mon Sep 17 00:00:00 2001
 From: Utkarsh <utkarsh.maheshwari@altair.com>
 Date: Thu, 30 Aug 2018 15:28:05 +0530
-Subject: [PATCH 2/2] Allow setting PBS in master URL
+Subject: [PATCH 2/3] Allow setting PBS in master URL
 
 ---
  core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala | 7 +++++--

@@ -17,4 +17,5 @@ build/mvn -DskipTests -Ppbs package
 You can run Spark on the PBS cluster as follows:
 ```bash
 ./bin/spark-shell --master pbs
+./bin/spark-submit --master pbs --deploy-mode client --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.11/jars/spark-examples_2.11-2.4.0-SNAPSHOT.jar 100
 ```
