@@ -37,7 +37,7 @@ private[pbs] class Client(args: ClientArguments, sparkConf: SparkConf) extends L
 
     // TODO: Configure the driver command for python, R etc.
     val driverCommand = s"$runScript --master pbs --deploy-mode client " +
-        s"--driver-cores $driverCores --driver-memory $driverCores " +
+        s"--driver-cores $driverCores --driver-memory $driverMemory " +
         s"--class ${args.mainClass} ${args.primaryJavaResource} ${args.arg}"
     val cmd = s"qsub -N $appName -l select=1:ncpus=$driverCores:mem=$driverMemory -- $driverCommand"
 
