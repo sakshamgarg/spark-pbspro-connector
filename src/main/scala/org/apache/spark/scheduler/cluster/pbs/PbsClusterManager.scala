@@ -13,33 +13,44 @@ private[spark] class PbsClusterManager extends ExternalClusterManager with Loggi
 
   /**
    * Check if we can create scheduler components for the given URL
+   *
+   * @param master the string passed with the --master option
+   * @return if PBS can handle this master URL
    */
-  override def canCreate(masterURL: String): Boolean = {
-    /* checking if the URL starts with "pbs" e.g. "pbs://host:port" */
-    masterURL.startsWith("pbs")
+  override def canCreate(master: String): Boolean = {
+    master == "pbs"
   }
 
   /**
    * Create Task Scheduler according to the given SparkContext
+   *
+   * @param sparkContext the Spark application
+   * @return task scheduler for the application
    */
-  override def createTaskScheduler(sc: SparkContext, masterURL: String): TaskScheduler = {
+  override def createTaskScheduler(sparkContext: SparkContext, masterURL: String): TaskScheduler = {
     logDebug("Creating new TaskScheduler")
-    new TaskSchedulerImpl(sc)
+    new TaskSchedulerImpl(sparkContext)
   }
 
   /**
    * Create a Scheduler Backend for the given SparkContext
+   *
+   * @param sparkContext the Spark application
+   * @param master the string passed with the --master option
+   * @param scheduler the task scheduler for the application
    */
-  override def createSchedulerBackend(sc: SparkContext,
+  override def createSchedulerBackend(sparkContext: SparkContext,
       masterURL: String,
       scheduler: TaskScheduler): SchedulerBackend = {
-    // TODO: Check and allow for a fine grained scheduler if needed.
     logDebug("Creating new SchedulerBackend")
-    new PbsCoarseGrainedSchedulerBackend(scheduler, sc, masterURL)
+    new PbsCoarseGrainedSchedulerBackend(scheduler, sparkContext, masterURL)
   }
 
   /**
    * Initialize the Task Scheduler and Scheduler Backend (after they are created).
+   *
+   * @param scheduler the task scheduler for the application
+   * @param backend the scheduler backend to initialize
    */
   override def initialize(scheduler: TaskScheduler, backend: SchedulerBackend): Unit = {
     logDebug("Initializing Cluster Manager")

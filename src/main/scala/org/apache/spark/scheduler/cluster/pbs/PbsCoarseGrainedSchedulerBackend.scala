@@ -18,10 +18,11 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
     sparkContext.env.rpcEnv) with Logging {
 
   private val initialExecutors: Int = SchedulerBackendUtils.getInitialTargetExecutorNumber(conf)
+  private val defaultMinRegisteredRatio: Double = 0.8
 
   protected override val minRegisteredRatio: Double = {
     if (conf.getOption("spark.scheduler.minRegisteredResourcesRatio").isEmpty) {
-      0.8
+      defaultMinRegisteredRatio
     } else {
       super.minRegisteredRatio
     }
