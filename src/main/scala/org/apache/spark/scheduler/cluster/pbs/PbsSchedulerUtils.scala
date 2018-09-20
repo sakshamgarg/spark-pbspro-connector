@@ -2,23 +2,29 @@ package org.apache.spark.scheduler.cluster.pbs
 
 import java.io.File
 
-import scala.sys.process._
-
+import org.apache.spark.{SparkContext, SparkException}
 import org.apache.spark.rpc.RpcEndpointAddress
-import org.apache.spark.SparkContext
-import org.apache.spark.executor.pbs.PbsExecutorInfo
-
+import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
 
-private[pbs] object PbsSchedulerUtils {
+import org.apache.spark.pbs.Utils
+import org.apache.spark.executor.pbs.PbsExecutorInfo
+
+private[pbs] object PbsSchedulerUtils extends Logging {
 
   private var last_task = 0
+  private val defaultAppId: String = "app"
+  private val defaultExecutorCores: Int = 2
+  private val defaultExecutorMemory: String = "1G"
 
   /**
-   * Start an Executor.
+   * Start an Executor
+   *
+   * Parse the SparkContext to extract params necessary for the executor. With these params, submit
+   * PbsExecutor as a PBS job via qsub.
    *
    * @param sparkContext spark application
-   * @return Executor info for the started executor
+   * @return Executor info for the executor submitted. The executor may or may not be running.
    */
   private def newExecutor(sparkContext: SparkContext): Option[PbsExecutorInfo] = {
     val driverUrl = RpcEndpointAddress(
@@ -26,32 +32,33 @@ private[pbs] object PbsSchedulerUtils {
       sparkContext.conf.get("spark.driver.port").toInt,
       CoarseGrainedSchedulerBackend.ENDPOINT_NAME).toString
 
-    val environ = ""                                        // TODO
-    val taskId = last_task                                  // TODO
+    val environ: String = ""  // TODO
+    val taskId: Int = last_task
     last_task += 1
-    val appId = "APPID"                                     // TODO
-    val numCores = sparkContext.conf.getOption("spark.executor.cores").getOrElse(3)
-    val sparkHome = sparkContext.getSparkHome() match {
-      case Some(home) =>
-        home
-      case None =>
-        "/home/utkmah/code/spark/" // FIXME
+    val appId: String = sparkContext.conf.getOption("spark.app.name")
+      .getOrElse(defaultAppId).replaceAll("\\s", "")
+    val numCores: Int = sparkContext.conf.getOption("spark.executor.cores") match {
+      case Some(cores) => cores.toInt
+      case None => defaultExecutorCores
     }
+    val memory: String = sparkContext.conf.getOption("spark.driver.memory")
+      .getOrElse(defaultExecutorMemory)
+    val sparkHome: String = sparkContext.conf.getOption("spark.executor.pbs.home")
+      .orElse(sparkContext.getSparkHome())
+      .getOrElse {
+        throw new SparkException("Executor Spark home `spark.executor.pbs.home` not set!")
+      }
 
-    val runScript = new File(sparkHome, "bin/spark-class").getPath
-
+    val runScript = new File(sparkHome, "/bin/spark-class").getPath
     val opts = s"--driver-url $driverUrl" +
         s" --cores $numCores" +
         s" --app-id $appId" +
-        //s" --worker-url ubuntu:13245" +
-        //s" --user-class-path file://" +
         s" --executor-id $taskId"
-
     val command = s"$runScript org.apache.spark.executor.pbs.PbsExecutor $opts"
+    val jobName = s"spark-$appId-$taskId"
 
-    val cmd = s"/opt/pbs/bin/qsub -N spark-job-$appId-$taskId -l select=1:ncpus=$numCores -- $command"
-    val out = cmd.!!
-    None
+    val jobId = Utils.qsub(jobName, numCores, memory, command)
+    Some(new PbsExecutorInfo(jobId, jobName, numCores, memory))
   }
 
   /**
@@ -65,7 +72,9 @@ private[pbs] object PbsSchedulerUtils {
     for (i <- 1 to totalExecutors) {
       newExecutor(sparkContext) match {
         case Some(executor: PbsExecutorInfo) =>
+          logInfo(s"qsub: ${executor.jobId} : ${executor.jobName}")
         case None =>
+          throw new SparkException("Failed to try starting executor")
       }
     }
     true
