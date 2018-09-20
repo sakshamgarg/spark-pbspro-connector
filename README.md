@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/UtkarshMe/Spark-PBSPro.svg?token=6cA7nqyyepjxqz4zK2sH&branch=master)](https://travis-ci.com/UtkarshMe/Spark-PBSPro)
+
 # Spark PBSPro Support
 This adds support for PBS Professional HPC resource manager to Apache Spark
 
