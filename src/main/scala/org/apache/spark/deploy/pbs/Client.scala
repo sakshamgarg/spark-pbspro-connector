@@ -23,6 +23,8 @@ private[pbs] class Client(args: ClientArguments, sparkConf: SparkConf) extends L
    * launching of executors on its own.
    */
   def run() {
+    // this is only called when in cluster mode which means the spark home should be the executor's
+    // spark home
     val sparkHome: String = sparkConf.getOption("spark.executor.pbs.home")
       .orElse(sparkConf.getOption("spark.home"))
       .getOrElse {
