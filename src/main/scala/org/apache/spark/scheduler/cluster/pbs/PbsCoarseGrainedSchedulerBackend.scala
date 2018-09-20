@@ -4,7 +4,7 @@ import scala.concurrent.Future
 
 import org.apache.spark.{SecurityManager, SparkConf, SparkContext}
 import org.apache.spark.scheduler.{TaskScheduler, TaskSchedulerImpl}
-import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
+import org.apache.spark.scheduler.cluster.{CoarseGrainedSchedulerBackend, SchedulerBackendUtils}
 import org.apache.spark.internal.Logging
 
 import org.apache.spark.executor.pbs.PbsExecutorInfo
@@ -17,8 +17,15 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
     scheduler.asInstanceOf[TaskSchedulerImpl],
     sparkContext.env.rpcEnv) with Logging {
 
-  /* TODO: Get this from conf or something */
-  private val initialExecutors = 2
+  private val initialExecutors: Int = SchedulerBackendUtils.getInitialTargetExecutorNumber(conf)
+
+  protected override val minRegisteredRatio: Double = {
+    if (conf.getOption("spark.scheduler.minRegisteredResourcesRatio").isEmpty) {
+      0.8
+    } else {
+      super.minRegisteredRatio
+    }
+  }
 
   /**
    * Start the scheduler and initialize dependent components.
@@ -43,9 +50,7 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
    * @return true if enough resources registered
    */
   override def sufficientResourcesRegistered(): Boolean = {
-    logInfo("sufficientResourcesRegistered")
-    /* TODO */
-    true
+    totalRegisteredExecutors.get() >= initialExecutors * minRegisteredRatio
   }
 
   /**
