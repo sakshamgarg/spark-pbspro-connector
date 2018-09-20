@@ -17,8 +17,6 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
     scheduler.asInstanceOf[TaskSchedulerImpl],
     sparkContext.env.rpcEnv) with Logging {
 
-  private val driver = new PbsSchedulerDriver(sparkContext)
-
   /* TODO: Get this from conf or something */
   private val initialExecutors = 2
 
@@ -28,7 +26,6 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
   override def start() {
     logInfo("Starting PBS Scheduler backend")
     super.start()
-    driver.init()
     logInfo("Starting initial " + initialExecutors + " executors")
     PbsSchedulerUtils.startExecutors(sparkContext, initialExecutors)
   }
