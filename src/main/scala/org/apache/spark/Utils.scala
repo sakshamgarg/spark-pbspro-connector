@@ -4,7 +4,13 @@ import scala.sys.process._
 
 private[spark] object Utils {
 
-  private def runCommand(command: String): String = {
+  /**
+   * Runs a shell command
+   *
+   * @param command the command to run with the argument
+   * @return output of the command
+   */
+  def runCommand(command: String): String = {
     command.!!.trim()
   }
 
