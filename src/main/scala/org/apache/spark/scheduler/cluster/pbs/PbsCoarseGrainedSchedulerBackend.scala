@@ -1,6 +1,7 @@
 package org.apache.spark.scheduler.cluster.pbs
 
 import scala.concurrent.Future
+import scala.collection.mutable.ListBuffer
 
 import org.apache.spark.{SecurityManager, SparkConf, SparkContext}
 import org.apache.spark.scheduler.{TaskScheduler, TaskSchedulerImpl}
@@ -20,6 +21,8 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
   private val initialExecutors: Int = SchedulerBackendUtils.getInitialTargetExecutorNumber(conf)
   private val defaultMinRegisteredRatio: Double = 0.8
 
+  private var executors = new ListBuffer[PbsExecutorInfo]
+
   protected override val minRegisteredRatio: Double = {
     if (conf.getOption("spark.scheduler.minRegisteredResourcesRatio").isEmpty) {
       defaultMinRegisteredRatio
@@ -35,7 +38,7 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
     logInfo("Starting PBS Scheduler backend")
     super.start()
     logInfo("Starting initial " + initialExecutors + " executors")
-    PbsSchedulerUtils.startExecutors(sparkContext, initialExecutors)
+    doRequestTotalExecutors(initialExecutors)
   }
 
   /**
@@ -43,6 +46,7 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
    */
   override def stop() {
     logInfo("Stopping PBS Scheduler backend")
+    //doKillExecutors(allExecutorIds)
   }
 
   /**
@@ -80,7 +84,7 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
    */
   override def doRequestTotalExecutors(requestedTotal: Int): Future[Boolean] = Future.successful {
     logInfo(requestedTotal + " executors requested")
-    PbsSchedulerUtils.startExecutors(sparkContext, requestedTotal)
+    PbsSchedulerUtils.startExecutors(sparkContext, requestedTotal, executors)
   }
 
 }

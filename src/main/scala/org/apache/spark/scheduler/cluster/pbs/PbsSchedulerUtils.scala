@@ -1,6 +1,7 @@
 package org.apache.spark.scheduler.cluster.pbs
 
 import java.io.File
+import scala.collection.mutable.ListBuffer
 
 import org.apache.spark.{SparkContext, SparkException}
 import org.apache.spark.rpc.RpcEndpointAddress
@@ -66,13 +67,18 @@ private[pbs] object PbsSchedulerUtils extends Logging {
    *
    * @param sparkContext spark application
    * @param totalExecutors total number of executors wanted (including already running)
+   * @param executors list of all executors (including those which may be in queued state)
    */
-  def startExecutors(sparkContext: SparkContext, totalExecutors: Int): Boolean = {
+  def startExecutors(
+    sparkContext: SparkContext,
+    totalExecutors: Int,
+    executors: ListBuffer[PbsExecutorInfo]): Boolean = {
     // FIXME: Check for already running executors
     for (i <- 1 to totalExecutors) {
       newExecutor(sparkContext) match {
         case Some(executor: PbsExecutorInfo) =>
           logInfo(s"qsub: ${executor.jobId} : ${executor.jobName}")
+          executors.append(executor)
         case None =>
           throw new SparkException("Failed to try starting executor")
       }
