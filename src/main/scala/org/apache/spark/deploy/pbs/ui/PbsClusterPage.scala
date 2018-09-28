@@ -15,22 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.spark.deploy.pbs
+package org.apache.spark.deploy.pbs.ui
 
-import org.apache.spark.deploy.SparkApplication
-import org.apache.spark.internal.Logging
-import org.apache.spark.SparkConf
+import javax.servlet.http.HttpServletRequest
+import scala.xml.Node
 
-private[spark] class PbsClusterApplication extends SparkApplication with Logging {
+import org.apache.spark.ui.{WebUIPage, UIUtils}
 
-  /**
-   * Create and run a new spark application on a node in the cluster.
-   *
-   * @param args arguments from SparkSubmit
-   * @param conf spark configuration
-   */
-  override def start(args: Array[String], conf: SparkConf): Unit = {
-    logInfo("Starting new client with master URL: " + conf.get("spark.master"))
-    new Client(new ClientArguments(args), conf).run()
+private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") {
+
+  private def getServerState(): String = {
+    //TODO
+    "Running"
+  }
+
+  def render(request: HttpServletRequest): Seq[Node] = {
+    val content = 
+      <div class="row-fluid">
+        <div class="span12">
+          <ul class="unstyled">
+            <li><strong>Status:</strong> {getServerState} </li>
+          </ul>
+        </div>
+      </div>
+    UIUtils.basicSparkPage(request, content, "Spark Drivers for PBS cluster")
   }
 }
