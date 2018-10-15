@@ -52,7 +52,12 @@ private[spark] object Utils {
    * @return output of qstat command
    */
   def qstat(id: String, opts: String): String = {
-    runCommand(s"/opt/pbs/bin/qstat $opts $id")
+    try {
+      runCommand(s"/opt/pbs/bin/qstat $opts $id")
+    } catch {
+      case e: java.lang.RuntimeException =>
+        ""
+    }
   }
 
   /**

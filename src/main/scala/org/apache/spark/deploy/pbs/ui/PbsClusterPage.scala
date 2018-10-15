@@ -21,21 +21,43 @@ import javax.servlet.http.HttpServletRequest
 import scala.xml.Node
 
 import org.apache.spark.ui.{WebUIPage, UIUtils}
+import org.apache.spark.deploy.pbs.{PbsServerState, PbsDriverInfo}
 
 private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") {
 
-  private def getServerState(): String = {
-    //TODO
-    "Running"
+  // TODO: Add link to driver page
+  def driverRow(driver: PbsDriverInfo): Seq[Node] = {
+    <tr>
+      <td>{ driver.jobId }</td>
+      <td>{ driver.submissionDate}</td>
+      <td>{ driver.jobName }</td>
+      <td>cpus: { driver.ncpus }, mem: { driver.mem }</td>
+    </tr>
   }
 
   def render(request: HttpServletRequest): Seq[Node] = {
-    val content = 
+    val serverState = PbsServerState()
+    val headers = Seq("Driver ID", "Submission Date", "Main Class", "Driver Resources")
+    val content =
       <div class="row-fluid">
         <div class="span12">
           <ul class="unstyled">
-            <li><strong>Status:</strong> {getServerState} </li>
+            <li><strong>Status:</strong> { serverState.serverStatus } </li>
           </ul>
+        </div>
+      </div>
+      <div class="row-fluid">
+        <div class="span12">
+          <h4>Running Drivers:</h4>
+          {
+            UIUtils.listingTable(headers, driverRow,
+              serverState.drivers.filter(_.state == "R").toList)
+          }
+          <h4>Queued Drivers:</h4>
+          {
+            UIUtils.listingTable(headers, driverRow,
+              serverState.drivers.filter(_.state == "Q").toList)
+          }
         </div>
       </div>
     UIUtils.basicSparkPage(request, content, "Spark Drivers for PBS cluster")
