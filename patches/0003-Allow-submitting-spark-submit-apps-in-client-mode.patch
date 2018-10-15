@@ -1,31 +1,32 @@
-From ebe14dc6b1a83271ea08ef311d1f1172a1190a9d Mon Sep 17 00:00:00 2001
+From 9d542834d5f2d10d5915a05058e205b79aca20d6 Mon Sep 17 00:00:00 2001
 From: Utkarsh <utkarsh.maheshwari@altair.com>
 Date: Tue, 11 Sep 2018 11:56:38 +0530
 Subject: [PATCH 3/3] Allow submitting spark-submit apps in client mode
 
 ---
- .../org/apache/spark/deploy/SparkSubmit.scala      | 51 ++++++++++++++++++----
- 1 file changed, 42 insertions(+), 9 deletions(-)
+ .../org/apache/spark/deploy/SparkSubmit.scala      | 52 ++++++++++++++++++----
+ 1 file changed, 43 insertions(+), 9 deletions(-)
 
 diff --git a/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala b/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
-index d42a900..1fa3f36 100644
+index 263cf42..4737536 100644
 --- a/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
 +++ b/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
-@@ -279,6 +279,13 @@ private[spark] class SparkSubmit extends Logging {
+@@ -279,6 +279,14 @@ private[spark] class SparkSubmit extends Logging {
        }
      }
  
 +    if (clusterManager == PBS) {
-+      if (!Utils.classIsLoadable(PBS_CLUSTER_SUBMIT_CLASS) && !Utils.isTesting)
++      if (!Utils.classIsLoadable(PBS_CLUSTER_SUBMIT_CLASS) && !Utils.isTesting) {
 +        error(
 +          "Could not load PBS classes. " +
 +            "This copy of Spark may not have been compiled with PBS support.")
++      }
 +    }
 +
      // Fail fast, the following modes are not supported or applicable
      (clusterManager, deployMode) match {
        case (STANDALONE, CLUSTER) if args.isPython =>
-@@ -311,6 +318,7 @@ private[spark] class SparkSubmit extends Logging {
+@@ -309,6 +317,7 @@ private[spark] class SparkSubmit extends Logging {
      val isStandAloneCluster = clusterManager == STANDALONE && deployMode == CLUSTER
      val isKubernetesCluster = clusterManager == KUBERNETES && deployMode == CLUSTER
      val isMesosClient = clusterManager == MESOS && deployMode == CLIENT
@@ -33,7 +34,7 @@ index d42a900..1fa3f36 100644
      val isPbsCluster = clusterManager == PBS && deployMode == CLUSTER
  
      if (!isMesosCluster && !isStandAloneCluster) {
-@@ -545,20 +553,20 @@ private[spark] class SparkSubmit extends Logging {
+@@ -543,20 +552,20 @@ private[spark] class SparkSubmit extends Logging {
        OptionAssigner(args.keytab, YARN, ALL_DEPLOY_MODES, confKey = "spark.yarn.keytab"),
  
        // Other options
@@ -63,7 +64,7 @@ index d42a900..1fa3f36 100644
          confKey = "spark.driver.cores"),
        OptionAssigner(args.supervise.toString, STANDALONE | MESOS, CLUSTER,
          confKey = "spark.driver.supervise"),
-@@ -716,6 +724,29 @@ private[spark] class SparkSubmit extends Logging {
+@@ -718,6 +727,29 @@ private[spark] class SparkSubmit extends Logging {
        }
      }
  
@@ -93,7 +94,7 @@ index d42a900..1fa3f36 100644
      // Load any properties specified through --conf and the default properties file
      for ((k, v) <- args.sparkProperties) {
        sparkConf.setIfMissing(k, v)
-@@ -903,6 +934,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
+@@ -905,6 +937,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
    private[deploy] val STANDALONE_CLUSTER_SUBMIT_CLASS = classOf[ClientApp].getName()
    private[deploy] val KUBERNETES_CLUSTER_SUBMIT_CLASS =
      "org.apache.spark.deploy.k8s.submit.KubernetesClientApplication"
