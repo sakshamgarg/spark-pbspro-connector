@@ -36,30 +36,74 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") {
   }
 
   def render(request: HttpServletRequest): Seq[Node] = {
-    val serverState = PbsServerState()
+    val state = PbsServerState()
     val headers = Seq("Driver ID", "Submission Date", "Main Class", "Driver Resources")
+
     val content =
       <div class="row-fluid">
         <div class="span12">
           <ul class="unstyled">
-            <li><strong>Status:</strong> { serverState.serverStatus } </li>
+            <li><strong>Status:</strong>
+              { state.serverStatus }
+            </li>
+            <li><strong>Running Applications:</strong>
+              <a href="#running-app"> { state.runningDrivers.length } running</a>
+            </li>
+            <li><strong>Queued Applications:</strong>
+              <a href="#queued-app"> { state.queuedDrivers.length } queued</a>
+            </li>
+            <li><strong>Completed Applications:</strong>
+              <a href="#completed-app">{ state.completedDrivers.length } completed</a>
+            </li>
           </ul>
         </div>
       </div>
+
       <div class="row-fluid">
         <div class="span12">
-          <h4>Running Drivers:</h4>
-          {
-            UIUtils.listingTable(headers, driverRow,
-              serverState.drivers.filter(_.state == "R").toList)
-          }
-          <h4>Queued Drivers:</h4>
-          {
-            UIUtils.listingTable(headers, driverRow,
-              serverState.drivers.filter(_.state == "Q").toList)
-          }
+          <span id="running-app" class="collapse-aggregated-activeApps collapse-table"
+              onClick="collapseTable('collapse-aggregated-activeApps', 'aggregated-activeApps')">
+            <h4>
+              <span class="collapse-table-arrow arrow-open"></span>
+              <a>Running Applications ({ state.runningDrivers.length }):</a>
+            </h4>
+          </span>
+          <div class="aggregated-activeApps collapsible-table">
+            { UIUtils.listingTable(headers, driverRow, state.runningDrivers) }
+          </div>
         </div>
       </div>
-    UIUtils.basicSparkPage(request, content, "Spark Drivers for PBS cluster")
+
+      <div class="row-fluid">
+        <div class="span12">
+          <span id="queued-app" class="collapse-aggregated-queuedApps collapse-table"
+              onClick="collapseTable('collapse-aggregated-queuedApps', 'aggregated-queuedApps')">
+            <h4>
+              <span class="collapse-table-arrow arrow-open"></span>
+              <a>Queued Applications ({ state.queuedDrivers.length }):</a>
+            </h4>
+          </span>
+          <div class="aggregated-queuedApps collapsible-table">
+            { UIUtils.listingTable(headers, driverRow, state.queuedDrivers) }
+          </div>
+        </div>
+      </div>
+
+      <div class="row-fluid">
+        <div class="span12">
+          <span id="completed-app" class="collapse-aggregated-queuedApps collapse-table"
+              onClick="collapseTable('collapse-aggregated-queuedApps', 'aggregated-queuedApps')">
+            <h4>
+              <span class="collapse-table-arrow arrow-open"></span>
+              <a>Completed Applications ({ state.completedDrivers.length }):</a>
+            </h4>
+          </span>
+          <div class="aggregated-queuedApps collapsible-table">
+            { UIUtils.listingTable(headers, driverRow, state.completedDrivers) }
+          </div>
+        </div>
+      </div>
+
+    UIUtils.basicSparkPage(request, content, "Spark Applications in PBS cluster")
   }
 }

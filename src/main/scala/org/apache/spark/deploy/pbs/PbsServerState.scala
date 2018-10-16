@@ -39,4 +39,8 @@ private[pbs] case class PbsServerState() {
         case _ => true
       })
   }
+
+  val runningDrivers: Array[PbsDriverInfo] = drivers.filter(_.state == "R")
+  val queuedDrivers: Array[PbsDriverInfo]  = drivers.filter(_.state == "Q")
+  val completedDrivers: Array[PbsDriverInfo] = drivers.filter(_.state == "C") // TODO
 }
