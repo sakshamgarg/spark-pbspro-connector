@@ -91,14 +91,14 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") {
 
       <div class="row-fluid">
         <div class="span12">
-          <span id="completed-app" class="collapse-aggregated-queuedApps collapse-table"
-              onClick="collapseTable('collapse-aggregated-queuedApps', 'aggregated-queuedApps')">
+          <span id="completed-app" class="collapse-aggregated-completedApps collapse-table"
+              onClick="collapseTable('collapse-aggregated-completedApps', 'aggregated-completedApps')">
             <h4>
               <span class="collapse-table-arrow arrow-open"></span>
               <a>Completed Applications ({ state.completedDrivers.length }):</a>
             </h4>
           </span>
-          <div class="aggregated-queuedApps collapsible-table">
+          <div class="aggregated-completedApps collapsible-table">
             { UIUtils.listingTable(headers, driverRow, state.completedDrivers) }
           </div>
         </div>
