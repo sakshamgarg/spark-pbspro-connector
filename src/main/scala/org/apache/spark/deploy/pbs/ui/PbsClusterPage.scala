@@ -104,6 +104,6 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") {
         </div>
       </div>
 
-    UIUtils.basicSparkPage(request, content, "Spark Applications in PBS cluster")
+    UIUtils.basicSparkPage(request, content, "Spark Applications on PBS cluster")
   }
 }

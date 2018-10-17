@@ -12,6 +12,7 @@ private[pbs] case class PbsDriverInfo(jobId: String) {
   var state: String = null
 
   val ROW_REGEX: Regex = """(.*) = (.*)"""r
+  val JOB_REGEX: Regex = """sparkjob-(.*)"""r
 
   def init() {
     Utils.qstat(jobId, "-f").split("\n").foreach(jobRow => {
@@ -19,7 +20,8 @@ private[pbs] case class PbsDriverInfo(jobId: String) {
         val ROW_REGEX(key, value) = jobRow
         key.trim() match {
           case "Job_Name" =>
-            jobName = value.trim()
+            val JOB_REGEX(className) = value.trim()
+            jobName = className
           case "Job_Owner" =>
             user = value.trim()
           case "resources_used.ncpus" =>
@@ -40,7 +42,7 @@ private[pbs] case class PbsDriverInfo(jobId: String) {
 }
 
 private[pbs] object PbsDriverInfo {
-  val SPARK_JOB_REGEX: Regex  = """([0-9]+\.[a-z]+) +(org[a-zA-Z\-\.]*.*)"""r
+  val SPARK_JOB_REGEX: Regex  = """([0-9]+\.[a-z]+) +(sparkjob-[a-zA-Z\-\.]*.*)"""r
 
   def create(jobString: String): PbsDriverInfo = {
     jobString match {
