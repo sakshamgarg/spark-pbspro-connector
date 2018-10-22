@@ -24,9 +24,9 @@ private[pbs] case class PbsDriverInfo(jobId: String) {
             jobName = className
           case "Job_Owner" =>
             user = value.trim()
-          case "resources_used.ncpus" =>
+          case "Resource_List.ncpus" =>
             ncpus = value
-          case "resources_used.mem" =>
+          case "Resource_List.mem" =>
             mem = value
           case "qtime" =>
             submissionDate = value

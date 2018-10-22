@@ -67,18 +67,13 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") wit
       <td>{ driver.jobId } { killLink }</td>
       <td>{ driver.submissionDate}</td>
       <td>{ driver.jobName }</td>
-      { if (driver.ncpus != null)
-        {
-          <td>cpus: { driver.ncpus }, mem: { driver.mem }</td>
-        }
-      }
+      <td>cpus: { driver.ncpus }, mem: { driver.mem }</td>
     </tr>
   }
 
   def render(request: HttpServletRequest): Seq[Node] = {
     val state = PbsServerState()
-    val headers = Seq("Driver ID", "Submission Date", "Main Class")
-    val runningHeaders = Seq("Driver ID", "Submission Date", "Main Class", "Driver Resources")
+    val headers = Seq("Driver ID", "Submission Date", "Main Class", "Driver Resources")
 
     val content =
       <div class="row-fluid">
@@ -110,7 +105,7 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") wit
             </h4>
           </span>
           <div class="aggregated-activeApps collapsible-table">
-            { UIUtils.listingTable(runningHeaders, driverRow, state.runningDrivers) }
+            { UIUtils.listingTable(headers, driverRow, state.runningDrivers) }
           </div>
         </div>
       </div>
