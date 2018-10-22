@@ -35,6 +35,7 @@ extends WebUI(securityManager, securityManager.getSSLOptions("pbs"), port, conf)
   override def initialize() {
     val clusterPage = new PbsClusterPage(this)
     attachPage(clusterPage)
+    attachPage(new PbsApplicationPage(this))
     addStaticHandler(SparkUI.STATIC_RESOURCE_DIR)
     attachHandler(createRedirectHandler(
       "/app/kill", "/",  clusterPage.handleAppKillRequest, httpMethods = Set("POST")))

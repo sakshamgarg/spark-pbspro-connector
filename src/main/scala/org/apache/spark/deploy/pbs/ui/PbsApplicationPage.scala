@@ -15,32 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.spark.deploy.pbs
+package org.apache.spark.deploy.pbs.ui
 
+import javax.servlet.http.HttpServletRequest
+import scala.xml.Node
+
+import org.apache.spark.internal.Logging
+import org.apache.spark.ui.{WebUIPage, UIUtils}
+import org.apache.spark.deploy.pbs.{PbsServerState, PbsDriverInfo}
 import org.apache.spark.pbs.Utils
-import org.apache.spark.deploy.pbs.PbsDriverInfo
 
-private[pbs] case class PbsServerState() {
-  val serverStatus: String = {
-    "Active".r.findFirstMatchIn(Utils.qstat("", "-B")) match {
-      case Some(_) =>
-        "running"
-      case None =>
-        "down"
-    }
+private[ui] class PbsApplicationPage(parent: PbsClusterUI) extends WebUIPage("app") with Logging {
+
+  def render(request: HttpServletRequest): Seq[Node] = {
+    val appId = UIUtils.stripXSS(request.getParameter("appId"))
+
+    val content =
+      <h4>
+        ssup?
+      </h4>
+      <pre>
+        { Utils.qstat(appId, "-f") }
+      </pre><br/>
+
+    UIUtils.basicSparkPage(request, content, "Application: " + appId)
   }
-
-  val drivers: Array[PbsDriverInfo] = {
-    Utils.qstat("", "")
-      .split("\n")
-      .map(PbsDriverInfo.create(_))
-      .filter(_ match {
-        case null => false
-        case _ => true
-      })
-  }
-
-  val runningDrivers: Array[PbsDriverInfo] = drivers.filter(_.isRunning)
-  val queuedDrivers: Array[PbsDriverInfo]  = drivers.filter(_.isQueued)
-  val completedDrivers: Array[PbsDriverInfo] = drivers.filter(_.isCompleted) // TODO
 }

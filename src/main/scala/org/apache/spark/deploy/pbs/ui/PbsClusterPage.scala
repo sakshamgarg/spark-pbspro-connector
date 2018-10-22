@@ -50,7 +50,6 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") wit
     Thread.sleep(100)
   }
 
-  // TODO: Add link to driver page
   def driverRow(driver: PbsDriverInfo): Seq[Node] = {
     val killLink = {
       val confirm =
@@ -64,7 +63,17 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") wit
     }
 
     <tr>
-      <td>{ driver.jobId } { killLink }</td>
+      <td>
+      {
+        if (driver.isRunning) {
+          <a href={ s"app?appId=${driver.jobId}" }>
+            { driver.jobId }
+          </a>
+        } else {
+          driver.jobId
+        }
+      } { killLink}
+      </td>
       <td>{ driver.submissionDate}</td>
       <td>{ driver.jobName }</td>
       <td>cpus: { driver.ncpus }, mem: { driver.mem }</td>

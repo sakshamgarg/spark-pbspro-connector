@@ -14,6 +14,8 @@ private[pbs] case class PbsDriverInfo(jobId: String) {
   val ROW_REGEX: Regex = """(.*) = (.*)"""r
   val JOB_REGEX: Regex = """sparkjob-(.*)"""r
 
+  init()
+
   def init() {
     Utils.qstat(jobId, "-f").split("\n").foreach(jobRow => {
       try {
@@ -39,6 +41,10 @@ private[pbs] case class PbsDriverInfo(jobId: String) {
       }
     })
   }
+
+  val isRunning: Boolean = { state == "R" }
+  val isQueued: Boolean = { state == "Q" }
+  val isCompleted: Boolean = { state == "C" } // TODO: This is incorrect.
 }
 
 private[pbs] object PbsDriverInfo {
@@ -47,9 +53,7 @@ private[pbs] object PbsDriverInfo {
   def create(jobString: String): PbsDriverInfo = {
     jobString match {
       case SPARK_JOB_REGEX(job, _) =>  // job is a spark job
-        val driver = PbsDriverInfo(job)
-        driver.init()
-        driver
+        PbsDriverInfo(job)
       case _ =>
         null
     }
