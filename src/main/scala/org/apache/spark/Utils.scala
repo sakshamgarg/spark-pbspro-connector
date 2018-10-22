@@ -21,6 +21,8 @@ import scala.sys.process._
 
 private[spark] object Utils {
 
+  val prefix: String = s"/opt/pbs/bin"
+
   /**
    * Runs a shell command
    *
@@ -41,7 +43,7 @@ private[spark] object Utils {
    * @return the job ID
    */
   def qsub(name: String, cores: Int, memory: String, command: String): String = {
-    runCommand(s"/opt/pbs/bin/qsub -N $name -l select=1:ncpus=$cores:mem=$memory -- $command")
+    runCommand(s"$prefix/qsub -N $name -l select=1:ncpus=$cores:mem=$memory -- $command")
   }
 
   /**
@@ -53,7 +55,16 @@ private[spark] object Utils {
    */
   def qstat(id: String, opts: String): String = {
     try {
-      runCommand(s"/opt/pbs/bin/qstat $opts $id")
+      runCommand(s"$prefix/qstat $opts $id")
+    } catch {
+      case e: java.lang.RuntimeException =>
+        ""
+    }
+  }
+
+  def qdel(id: String, opts: String): String = {
+    try {
+      runCommand(s"$prefix/qdel $opts $id")
     } catch {
       case e: java.lang.RuntimeException =>
         ""

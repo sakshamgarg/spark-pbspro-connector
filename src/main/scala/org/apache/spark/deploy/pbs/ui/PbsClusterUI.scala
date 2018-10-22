@@ -21,16 +21,23 @@ import org.apache.spark.ui.{WebUI, SparkUI}
 import org.apache.spark.SparkConf
 import org.apache.spark.util.Utils
 import org.apache.spark.SecurityManager
+import org.apache.spark.ui.JettyUtils._
 
-private[spark] class PbsClusterUI(securityManager: SecurityManager,
+private[spark] class PbsClusterUI(
+  securityManager: SecurityManager,
   port: Int,
   val conf: SparkConf,
   dispatcherPublicAddress: String)
 extends WebUI(securityManager, securityManager.getSSLOptions("pbs"), port, conf) {
 
+  val killEnabled = conf.getBoolean("spark.ui.killEnabled", true)
+
   override def initialize() {
-    attachPage(new PbsClusterPage(this))
+    val clusterPage = new PbsClusterPage(this)
+    attachPage(clusterPage)
     addStaticHandler(SparkUI.STATIC_RESOURCE_DIR)
+    attachHandler(createRedirectHandler(
+      "/app/kill", "/",  clusterPage.handleAppKillRequest, httpMethods = Set("POST")))
   }
 }
 
