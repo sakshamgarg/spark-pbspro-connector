@@ -18,7 +18,6 @@
 package org.apache.spark.deploy.pbs
 
 import org.apache.spark.pbs.Utils
-import org.apache.spark.deploy.pbs.PbsDriverInfo
 
 private[pbs] case class PbsServerState() {
   val serverStatus: String = {
@@ -33,14 +32,19 @@ private[pbs] case class PbsServerState() {
   val drivers: Array[PbsDriverInfo] = {
     Utils.qstat("", "")
       .split("\n")
-      .map(PbsDriverInfo.create(_))
-      .filter(_ match {
-        case null => false
-        case _ => true
-      })
+      .map(x => PbsDriverInfo.getJobId(x) match {
+        case Some(jobId) => Some(new PbsDriverInfo(jobId))
+        case None => None
+      }).flatten
+  }
+
+  val applications: Array[PbsApplicationInfo] = {
+    drivers.map(x => new PbsApplicationInfo(x.jobId))
   }
 
   val runningDrivers: Array[PbsDriverInfo] = drivers.filter(_.isRunning)
-  val queuedDrivers: Array[PbsDriverInfo]  = drivers.filter(_.isQueued)
   val completedDrivers: Array[PbsDriverInfo] = drivers.filter(_.isCompleted) // TODO
+
+  val runningApplications: Array[PbsApplicationInfo] = applications.filter(_.isRunning)
+  val completedApplications: Array[PbsApplicationInfo] = applications.filter(_.isCompleted) // TODO
 }

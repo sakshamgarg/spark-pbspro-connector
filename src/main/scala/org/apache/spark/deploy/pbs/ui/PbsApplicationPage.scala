@@ -40,14 +40,14 @@ private[ui] class PbsApplicationPage(parent: PbsClusterUI) extends WebUIPage("ap
       <div class="row-fluid">
         <div class="span12">
           <ul class="unstyled">
-            <li><strong>ID:</strong> { app.id } </li>
+            <li><strong>ID:</strong> { app.jobId } </li>
             <li><strong>Name:</strong> { app.name } </li>
             <li><strong>User:</strong> { app.user } </li>
             <li><strong>Cores:</strong> { app.cores } </li>
             <li><strong>Executors:</strong> { app.executors } </li>
             <li><strong>Memory:</strong> { app.mem } </li>
             <li><strong>Submit Date:</strong> { app.submissionDate } </li>
-            <li><strong>State:</strong> { app.stateString } </li>
+            <li><strong>State:</strong> { /* app.getStateString() */ } </li>
           </ul>
         </div>
       </div>
