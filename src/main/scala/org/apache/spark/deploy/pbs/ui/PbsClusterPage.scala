@@ -47,7 +47,7 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") wit
       }
     }
 
-    Thread.sleep(100)
+    Thread.sleep(500)
   }
 
   def driverRow(driver: PbsDriverInfo): Seq[Node] = {

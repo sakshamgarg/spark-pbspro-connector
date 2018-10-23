@@ -1,45 +1,48 @@
 package org.apache.spark.deploy.pbs
 
+import org.json4s.jackson.JsonMethods
+
 import scala.util.matching.Regex
 import org.apache.spark.pbs.Utils
 
 private[pbs] case class PbsDriverInfo(jobId: String) {
+
+  implicit val formats = org.json4s.DefaultFormats
+
   var jobName: String = null
+  var name: String = null
   var user: String = null
   var submissionDate: String = null
   var ncpus: String = null
+  var cores: Int = _
   var mem: String = null
   var state: String = null
 
-  val ROW_REGEX: Regex = """(.*) = (.*)"""r
-  val JOB_REGEX: Regex = """sparkjob-(.*)"""r
+  val NAME_REGEX: Regex = """.*\.(.+)"""r
 
   init()
 
-  def init() {
-    Utils.qstat(jobId, "-f").split("\n").foreach(jobRow => {
-      try {
-        val ROW_REGEX(key, value) = jobRow
-        key.trim() match {
-          case "Job_Name" =>
-            val JOB_REGEX(className) = value.trim()
-            jobName = className
-          case "Job_Owner" =>
-            user = value.trim()
-          case "Resource_List.ncpus" =>
-            ncpus = value
-          case "Resource_List.mem" =>
-            mem = value
-          case "qtime" =>
-            submissionDate = value
-          case "job_state" =>
-            state = value
-          case _ =>  // ignored (for now)
-        }
-      } catch {
-        case e: scala.MatchError => // TODO: Split lines end up here. Fix them.
-      }
-    })
+  private def init() {
+    val qstatData = JsonMethods.parse(
+        Utils.qstat(jobId, "-f -F json").replaceAll("""\\\'""", """\'"""))
+    (qstatData \ "Jobs").children.lift(0) match {
+      case None =>
+        return
+      case Some(job) =>
+        val resourceList = (job \ "Resource_List")
+        jobName = (job \ "Job_Name").extract[String]
+            .stripPrefix("sparkjob-") // TODO: Remove magic prefix
+        user = (job \ "Job_Owner").extract[String]
+        state = (job \ "job_state").extract[String]
+        submissionDate = (job \ "qtime").extract[String]
+        ncpus = (resourceList \ "ncpus").extract[String]
+        mem = (resourceList \ "mem").extract[String]
+
+        val NAME_REGEX(className) = jobName
+        name = className
+
+        cores = ncpus.toInt
+    }
   }
 
   val isRunning: Boolean = { state == "R" }
