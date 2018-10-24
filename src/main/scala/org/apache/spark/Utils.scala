@@ -42,8 +42,16 @@ private[spark] object Utils {
    * @param command the program to run (including the params to the program).
    * @return the job ID
    */
-  def qsub(name: String, cores: Int, memory: String, command: String): String = {
-    runCommand(s"$prefix/qsub -N $name -l select=1:ncpus=$cores:mem=$memory -- $command")
+  def qsub(name: String, cores: Int, memory: String, command: String, env: String = null): String = {
+    val envString: String = env match {
+      case null =>
+        ""
+      case "" =>
+        ""
+      case _ =>
+        "-v " + env
+    }
+    runCommand(s"$prefix/qsub -N $name -l select=1:ncpus=$cores:mem=$memory $envString -- $command")
   }
 
   /**

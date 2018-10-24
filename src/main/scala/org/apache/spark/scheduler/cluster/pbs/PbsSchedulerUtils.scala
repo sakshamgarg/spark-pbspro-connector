@@ -48,7 +48,7 @@ private[pbs] object PbsSchedulerUtils extends Logging {
       sparkContext.conf.get("spark.driver.port").toInt,
       CoarseGrainedSchedulerBackend.ENDPOINT_NAME).toString
 
-    val environ: String = ""  // TODO
+    var environ: String = ""  // TODO
     val taskId: Int = last_task
     last_task += 1
     val appId: String = sparkContext.conf.getOption("spark.app.name")
@@ -57,7 +57,7 @@ private[pbs] object PbsSchedulerUtils extends Logging {
       case Some(cores) => cores.toInt
       case None => defaultExecutorCores
     }
-    val memory: String = sparkContext.conf.getOption("spark.driver.memory")
+    val memory: String = sparkContext.conf.getOption("spark.executor.memory")
       .getOrElse(defaultExecutorMemory)
     val sparkHome: String = sparkContext.conf.getOption("spark.executor.pbs.home")
       .orElse(sparkContext.getSparkHome())
@@ -73,7 +73,13 @@ private[pbs] object PbsSchedulerUtils extends Logging {
     val command = s"$runScript org.apache.spark.executor.pbs.PbsExecutor $opts"
     val jobName = s"sparkexec-$appId-$taskId"
 
-    val jobId = Utils.qsub(jobName, numCores, memory, command)
+    sys.env.get("PBS_JOBID") match {
+      case Some(id) =>
+        environ += s"SPARK_DRIVER=$id"
+      case None =>
+    }
+
+    val jobId = Utils.qsub(jobName, numCores, memory, command, environ)
     Some(new PbsExecutorInfo(jobId, jobName, numCores, memory))
   }
 
