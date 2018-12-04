@@ -7,8 +7,8 @@ In the spark project root, punch in these commands:
 # Clone the repo
 git clone https://github.com/UtkarshMe/Spark-PBSPro resource-managers/pbs
 
-# Apply patches from the `patches` folder to spark (in the root directory).
-git am resource-managers/pbs/patches/*
+# Apply patch to spark (in the root directory).
+git am resource-managers/pbs/*.patch
 
 # Build!
 build/mvn -DskipTests -Ppbs package
