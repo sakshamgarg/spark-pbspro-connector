@@ -22,14 +22,18 @@ import scala.xml.Node
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.ui.{WebUIPage, UIUtils}
-import org.apache.spark.deploy.pbs.{PbsServerState, PbsApplicationInfo}
+import org.apache.spark.deploy.pbs.PbsDriverInfo
 import org.apache.spark.pbs.Utils
 
 private[ui] class PbsApplicationPage(parent: PbsClusterUI) extends WebUIPage("app") with Logging {
 
   def render(request: HttpServletRequest): Seq[Node] = {
     val appId = UIUtils.stripXSS(request.getParameter("appId"))
-    val app = new PbsApplicationInfo(appId)
+    val state = new PbsServerState()
+    val app = state.applications.find(_.jobId == appId) match {
+      case Some(x) => x
+      case None => null
+    }
 
     if (app == null) {
       val msg = <div class="row-fluid"> No application with ID {appId} </div>
@@ -47,7 +51,7 @@ private[ui] class PbsApplicationPage(parent: PbsClusterUI) extends WebUIPage("ap
             <li><strong>Executors:</strong> { app.executors } </li>
             <li><strong>Memory:</strong> { app.mem } </li>
             <li><strong>Submit Date:</strong> { app.submissionDate } </li>
-            <li><strong>State:</strong> { /* app.getStateString() */ } </li>
+            <li><strong>State:</strong> { app.stateString } </li>
           </ul>
         </div>
       </div>

@@ -29,22 +29,32 @@ private[pbs] case class PbsServerState() {
     }
   }
 
-  val drivers: Array[PbsDriverInfo] = {
-    Utils.qstat("", "")
-      .split("\n")
-      .map(x => PbsDriverInfo.getJobId(x) match {
-        case Some(jobId) => Some(new PbsDriverInfo(jobId))
-        case None => None
-      }).flatten
+  val _sparkJobs: List[PbsJobInfo] = {
+    Utils.qstat("", "").split("\n").toList.map(PbsJobInfo.getJobInfo).flatten
   }
 
-  val applications: Array[PbsApplicationInfo] = {
-    drivers.map(x => new PbsApplicationInfo(x.jobId))
+  val executors: List[PbsExecutorInfo] = {
+    _sparkJobs.flatMap({
+      case x: PbsExecutorInfo => Some(x)
+      case _ => None
+    })
   }
 
-  val runningDrivers: Array[PbsDriverInfo] = drivers.filter(_.isRunning)
-  val completedDrivers: Array[PbsDriverInfo] = drivers.filter(_.isCompleted) // TODO
+  val drivers: List[PbsDriverInfo] = {
+    _sparkJobs.flatMap({
+      case x: PbsDriverInfo => Some(x)
+      case _ => None
+    })
+  }
 
-  val runningApplications: Array[PbsApplicationInfo] = applications.filter(_.isRunning)
-  val completedApplications: Array[PbsApplicationInfo] = applications.filter(_.isCompleted) // TODO
+  val runningDrivers: List[PbsDriverInfo] = drivers.filter(_.isRunning)
+  val completedDrivers: List[PbsDriverInfo] = drivers.filter(_.isCompleted) // TODO
+
+  val applications: List[PbsApplicationInfo] = {
+    runningDrivers.map(driver =>
+        new PbsApplicationInfo(driver, executors.filter(_.driverId == driver.jobId)))
+  }
+
+  val runningApplications: List[PbsApplicationInfo] = applications.filter(_.isRunning)
+  val completedApplications: List[PbsApplicationInfo] = applications.filter(_.isCompleted) // TODO
 }

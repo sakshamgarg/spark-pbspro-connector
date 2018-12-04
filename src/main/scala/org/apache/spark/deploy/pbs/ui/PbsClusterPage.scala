@@ -22,10 +22,11 @@ import scala.xml.Node
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.ui.{WebUIPage, UIUtils}
-import org.apache.spark.deploy.pbs.{PbsServerState, PbsApplicationInfo, PbsDriverInfo}
+import org.apache.spark.deploy.pbs.{PbsApplicationInfo, PbsDriverInfo, PbsServerState}
 import org.apache.spark.pbs.Utils
 
 private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") with Logging {
+  val state = new PbsServerState()
 
   def handleAppKillRequest(request: HttpServletRequest): Unit = {
     handleKillRequest(request, id => {
@@ -108,7 +109,6 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") wit
   }
 
   def render(request: HttpServletRequest): Seq[Node] = {
-    val state = PbsServerState()
     val appHeaders = Seq("Application ID", "Name", "Cores", "Memory per Executor",
         "Submission Time", "User", "State", "Duration")
     val driverHeaders = Seq("Submission ID", "Submission Time", "Worker", "State", "Cores",

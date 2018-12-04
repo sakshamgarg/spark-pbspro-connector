@@ -22,7 +22,6 @@ import java.io.File
 import org.apache.spark.{SparkContext, SparkException}
 import org.apache.spark.rpc.RpcEndpointAddress
 import org.apache.spark.internal.Logging
-import org.apache.spark.executor.pbs.PbsExecutorInfo
 import org.apache.spark.pbs.Utils
 import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
 
@@ -40,9 +39,9 @@ private[pbs] object PbsSchedulerUtils extends Logging {
    * PbsExecutor as a PBS job via qsub.
    *
    * @param sparkContext spark application
-   * @return Executor info for the executor submitted. The executor may or may not be running.
+   * @return Job ID for the executor submitted. The executor may or may not be running.
    */
-  private def newExecutor(sparkContext: SparkContext): Option[PbsExecutorInfo] = {
+  private def newExecutor(sparkContext: SparkContext): Option[String] = {
     val driverUrl = RpcEndpointAddress(
       sparkContext.conf.get("spark.driver.host"),
       sparkContext.conf.get("spark.driver.port").toInt,
@@ -79,8 +78,11 @@ private[pbs] object PbsSchedulerUtils extends Logging {
       case None =>
     }
 
-    val jobId = Utils.qsub(jobName, numCores, memory, command, environ)
-    Some(new PbsExecutorInfo(jobId, jobName, numCores, memory))
+    try {
+      Some(Utils.qsub(jobName, numCores, memory, command, environ))
+    } catch {
+      case _: Throwable => None
+    }
   }
 
   /**
@@ -93,10 +95,8 @@ private[pbs] object PbsSchedulerUtils extends Logging {
     // FIXME: Check for already running executors
     for (i <- 1 to totalExecutors) {
       newExecutor(sparkContext) match {
-        case Some(executor: PbsExecutorInfo) =>
-          logInfo(s"qsub: ${executor.jobId} : ${executor.jobName}")
-        case None =>
-          throw new SparkException("Failed to try starting executor")
+        case Some(executor) => logInfo(s"qsub: $executor")
+        case None => throw new SparkException("Failed to start executor")
       }
     }
     true

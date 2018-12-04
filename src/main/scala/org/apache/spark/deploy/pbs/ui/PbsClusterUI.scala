@@ -22,6 +22,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.util.Utils
 import org.apache.spark.SecurityManager
 import org.apache.spark.ui.JettyUtils._
+import org.apache.spark.deploy.pbs.PbsServerState
 
 private[spark] class PbsClusterUI(
   securityManager: SecurityManager,

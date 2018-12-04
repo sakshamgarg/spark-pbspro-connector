@@ -51,3 +51,19 @@ private[pbs] class PbsJobInfo(val jobId: String) {
     }
   }
 }
+
+private[pbs] object PbsJobInfo {
+  def getJobInfo(pbsJobRow: String): Option[PbsJobInfo] = {
+    val Driver = """([0-9]+\.[a-z]+) +sparkjob-.*""".r 
+    val Executor = """([0-9]+\.[a-z]+) +sparkexec-.*""".r 
+
+    pbsJobRow match {
+      case Driver(jobId) =>
+        Some(new PbsDriverInfo(jobId))
+      case Executor(jobId) =>
+        Some(new PbsExecutorInfo(jobId))
+      case _ =>
+        None
+    }
+  }
+}
