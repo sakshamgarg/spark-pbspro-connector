@@ -1,6 +1,8 @@
 # Spark PBSPro Support
 This adds support for PBS Professional HPC resource manager to Apache Spark
 
+Status of build with latest Spark: [![Build Status](https://travis-ci.org/UtkarshMe/Spark-PBSPro.svg?branch=master)](https://travis-ci.org/UtkarshMe/Spark-PBSPro)
+
 ## How to:
 In the spark project root, punch in these commands:
 ```bash
