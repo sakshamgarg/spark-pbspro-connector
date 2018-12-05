@@ -46,7 +46,7 @@ private[pbs] class Client(args: ClientArguments, sparkConf: SparkConf) extends L
       .getOrElse {
         throw new SparkException("Executor Spark home `spark.executor.pbs.home` not set!")
       }
-    val appName: String = sparkConf.getOption("spark.app.name")
+    val appName: String = "sparkjob-" + sparkConf.getOption("spark.app.name")
       .getOrElse(defaultAppName)
       .replaceAll("\\s", "")
     val driverCores: Int = sparkConf.getOption("spark.driver.cores") match {

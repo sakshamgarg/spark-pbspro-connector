@@ -71,7 +71,7 @@ private[pbs] object PbsSchedulerUtils extends Logging {
         s" --app-id $appId" +
         s" --executor-id $taskId"
     val command = s"$runScript org.apache.spark.executor.pbs.PbsExecutor $opts"
-    val jobName = s"spark-$appId-$taskId"
+    val jobName = s"sparkexec-$appId-$taskId"
 
     val jobId = Utils.qsub(jobName, numCores, memory, command)
     Some(new PbsExecutorInfo(jobId, jobName, numCores, memory))
