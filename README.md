@@ -16,14 +16,20 @@ git am resource-managers/pbs/*.patch
 build/mvn -DskipTests -Ppbs package
 ```
 
+Add executor home to your configuration:
+```bash
+# in file conf/spark-defaults.conf add line:
+spark.pbs.executor.home "SPARK INSTALLATION DIRECTORY PATH IN PBS MOMS"
+```
+
 You can run Spark on the PBS cluster as follows:
 ```bash
 # start spark shell. only in client mode
 ./bin/spark-shell --master pbs
 
 # submit a spark application in client mode
-./bin/spark-submit --master pbs --deploy-mode client --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.11/jars/spark-examples_2.11-2.4.0-SNAPSHOT.jar 100
+./bin/spark-submit --master pbs --deploy-mode client --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.0.0-SNAPSHOT.jar 100
 
 # submit a spark application in cluster mode
-./bin/spark-submit --master pbs --deploy-mode cluster --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.11/jars/spark-examples_2.11-2.4.0-SNAPSHOT.jar 100
+./bin/spark-submit --master pbs --deploy-mode cluster --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.0.0-SNAPSHOT.jar 100
 ```
