@@ -62,6 +62,13 @@ private[spark] object Utils {
     }
   }
 
+  /**
+   * Delete a job on a PBS cluster
+   *
+   * @param id the job ID
+   * @param opts params for the qdel
+   * @return output of qdel or empty string
+   */
   def qdel(id: String, opts: String): String = {
     try {
       runCommand(s"$prefix/qdel $opts $id")
