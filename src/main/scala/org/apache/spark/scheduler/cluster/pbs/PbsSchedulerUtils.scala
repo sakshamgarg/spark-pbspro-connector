@@ -59,10 +59,10 @@ private[pbs] object PbsSchedulerUtils extends Logging {
     }
     val memory: String = sparkContext.conf.getOption("spark.driver.memory")
       .getOrElse(defaultExecutorMemory)
-    val sparkHome: String = sparkContext.conf.getOption("spark.executor.pbs.home")
+    val sparkHome: String = sparkContext.conf.getOption("spark.pbs.executor.home")
       .orElse(sparkContext.getSparkHome())
       .getOrElse {
-        throw new SparkException("Executor Spark home `spark.executor.pbs.home` not set!")
+        throw new SparkException("Executor Spark home `spark.pbs.executor.home` not set!")
       }
 
     val runScript = new File(sparkHome, "/bin/spark-class").getPath

@@ -41,10 +41,10 @@ private[pbs] class Client(args: ClientArguments, sparkConf: SparkConf) extends L
   def run() {
     // this is only called when in cluster mode which means the spark home should be the executor's
     // spark home
-    val sparkHome: String = sparkConf.getOption("spark.executor.pbs.home")
+    val sparkHome: String = sparkConf.getOption("spark.pbs.executor.home")
       .orElse(sparkConf.getOption("spark.home"))
       .getOrElse {
-        throw new SparkException("Executor Spark home `spark.executor.pbs.home` not set!")
+        throw new SparkException("Executor Spark home `spark.pbs.executor.home` not set!")
       }
     val appName: String = "sparkjob-" + sparkConf.getOption("spark.app.name")
       .getOrElse(defaultAppName)
