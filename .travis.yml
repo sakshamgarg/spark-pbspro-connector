@@ -1,7 +1,11 @@
 language: scala
 scala:
-   - 2.12.7
+  - 2.12.7
 jdk: oraclejdk8
+
+branches:
+  only:
+    - master
 
 install: true
 
