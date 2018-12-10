@@ -2,7 +2,7 @@ language: scala
 sudo: true
 scala:
   - 2.12.7
-jdk: oraclejdk8
+jdk: openjdk8
 
 #branches:
   #only:
