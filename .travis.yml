@@ -8,8 +8,12 @@ jdk: oraclejdk8
   #only:
     #- master
 
+dist: xenial
+#addons:
+  #apt:
+
 before_install:
-  - sudo apt-get install gcc make libtool libhwloc-dev libx11-dev \
+  - sudo apt-get update && sudo apt-get install gcc make libtool libhwloc-dev libx11-dev \
       libxt-dev libedit-dev libical-dev ncurses-dev perl \
       postgresql-server-dev-all python-dev tcl-dev tk-dev swig \
       libexpat-dev libssl-dev libxext-dev libxft-dev autoconf \
