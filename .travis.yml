@@ -1,13 +1,22 @@
 language: scala
+sudo: true
 scala:
   - 2.12.7
 jdk: oraclejdk8
 
-branches:
-  only:
-    - master
+#branches:
+  #only:
+    #- master
 
-install: true
+before_install:
+  - sudo apt-get install gcc make libtool libhwloc-dev libx11-dev \
+      libxt-dev libedit-dev libical-dev ncurses-dev perl \
+      postgresql-server-dev-all python-dev tcl-dev tk-dev swig \
+      libexpat-dev libssl-dev libxext-dev libxft-dev autoconf \
+      automake
+
+install:
+  - dev/install_deps.sh
 
 script:
-  - travis_wait ./check_build.sh
+  - travis_wait dev/check_build.sh
