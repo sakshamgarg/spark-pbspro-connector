@@ -4,6 +4,9 @@ scala:
   - 2.12.7
 jdk: openjdk8
 
+services:
+  - postgresql
+
 #branches:
   #only:
     #- master
