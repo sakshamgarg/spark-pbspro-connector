@@ -13,6 +13,7 @@ sudo /opt/pbs/libexec/pbs_postinstall
 sudo chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp
 
 which psql
+psql --version
 #sudo /etc/init.d/postgresql start
 sudo useradd pbsdata
 sudo /etc/init.d/pbs start
