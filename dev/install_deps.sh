@@ -26,6 +26,11 @@ echo "chmod done"
 sudo sh -c "echo \"PBS_SERVER=$(hostname)\" >> /etc/pbs.conf"
 echo "echo shit done"
 
+cat /etc/hosts
+
+ping -c 5 localhost
+ping -c 5 $(hostname)
+
 ls -l /opt/pbs/sbin/pbs_iff
 sudo /opt/pbs/libexec/pbs_habitat || quit "habitat failed"
 echo "pbs habitat done"
