@@ -26,7 +26,8 @@ echo "chmod done"
 sudo sh -c "echo \"PBS_SERVER=$(hostname)\" >> /etc/pbs.conf"
 echo "echo shit done"
 
-sudo /opt/pbs/libexec/pbs_habitat
+ls -l /opt/pbs/sbin/pbs_iff
+sudo /opt/pbs/libexec/pbs_habitat || quit "habitat failed"
 echo "pbs habitat done"
 
 sudo /etc/init.d/pbs start || quit "Could not start PBS"
