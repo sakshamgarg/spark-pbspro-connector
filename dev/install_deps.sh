@@ -1,5 +1,11 @@
 #!/bin/sh
 
+quit() {
+  echo "$1"
+  cleanup
+  exit 1
+}
+
 git clone https://github.com/pbspro/pbspro /tmp/pbspro
 cd /tmp/pbspro
 
@@ -12,12 +18,10 @@ sudo make install
 sudo /opt/pbs/libexec/pbs_postinstall
 sudo chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp
 
-which psql
-psql --version
-#sudo /etc/init.d/postgresql start
-sudo useradd pbsdata
-sudo /etc/init.d/pbs start
+sudo /etc/init.d/pbs start || quit "Could not start PBS"
 
-. /etc/profile.d/pbs.sh
+. /etc/profile.d/pbs.sh || quit "Could not source profile.d/pbs.sh"
 
-qstat
+qstat || quit "Could not qstat"
+
+echo "Done"
