@@ -2,7 +2,6 @@
 
 quit() {
   echo "$1"
-  cleanup
   exit 1
 }
 
