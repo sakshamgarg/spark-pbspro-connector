@@ -24,6 +24,7 @@ cat /etc/passwd
 
 sudo /etc/init.d/pbs start || quit "Could not start PBS"
 
+sudo su me
 . /etc/profile.d/pbs.sh || quit "Could not source profile.d/pbs.sh"
 qstat || quit "Could not qstat"
 
