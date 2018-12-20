@@ -25,6 +25,12 @@ You can also just append `spark.master pbs` in `conf/spark-defaults.conf` to avo
 `--master pbs` on every submit.
 
 
+To run Spark UI with PBS cluster:
+```bash
+bin/spark-class org.apache.spark.deploy.pbs.ui.PbsClusterUI
+```
+
+
 
 ## Installation
 
