@@ -1,23 +1,24 @@
-From 2a306c59ccb1f3360b92dad6a21c9642396ed5d7 Mon Sep 17 00:00:00 2001
+From d8c31827db182fc9c32f5739843c3ec0710c2e93 Mon Sep 17 00:00:00 2001
 From: Utkarsh <utkarsh.maheshwari@altair.com>
 Date: Wed, 29 Aug 2018 19:09:01 +0530
 Subject: [PATCH] Add PBS Pro as an external resource manager
 
 ---
- assembly/pom.xml                                   | 10 ++++
- .../org/apache/spark/deploy/SparkSubmit.scala      | 59 ++++++++++++++++++----
- .../spark/launcher/AbstractCommandBuilder.java     |  1 +
- pom.xml                                            |  7 +++
- 4 files changed, 66 insertions(+), 11 deletions(-)
+ assembly/pom.xml                              | 10 ++++
+ .../org/apache/spark/deploy/SparkSubmit.scala | 55 ++++++++++++++++---
+ .../launcher/AbstractCommandBuilder.java      |  1 +
+ pom.xml                                       |  7 +++
+ 4 files changed, 64 insertions(+), 9 deletions(-)
 
 diff --git a/assembly/pom.xml b/assembly/pom.xml
-index 68ebfad..86115ad 100644
+index 68ebfadb66..86115adcfa 100644
 --- a/assembly/pom.xml
 +++ b/assembly/pom.xml
-@@ -149,6 +149,16 @@
+@@ -148,6 +148,16 @@
+         </dependency>
        </dependencies>
      </profile>
-     <profile>
++    <profile>
 +      <id>pbs</id>
 +      <dependencies>
 +        <dependency>
@@ -27,12 +28,11 @@ index 68ebfad..86115ad 100644
 +        </dependency>
 +      </dependencies>
 +    </profile>
-+    <profile>
+     <profile>
        <id>kubernetes</id>
        <dependencies>
-         <dependency>
 diff --git a/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala b/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
-index d4055cb..d6103ac 100644
+index a4c65aeaae..de18da771f 100644
 --- a/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
 +++ b/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
 @@ -230,8 +230,9 @@ private[spark] class SparkSubmit extends Logging {
@@ -70,22 +70,20 @@ index d4055cb..d6103ac 100644
  
      if (!isMesosCluster && !isStandAloneCluster) {
        // Resolve maven dependencies if there are any and add classpath to jars. Add them to py-files
-@@ -543,20 +554,20 @@ private[spark] class SparkSubmit extends Logging {
+@@ -544,20 +555,20 @@ private[spark] class SparkSubmit extends Logging {
        OptionAssigner(args.archives, YARN, ALL_DEPLOY_MODES, confKey = "spark.yarn.dist.archives"),
  
        // Other options
 -      OptionAssigner(args.executorCores, STANDALONE | YARN | KUBERNETES, ALL_DEPLOY_MODES,
 +      OptionAssigner(args.executorCores, STANDALONE | YARN | KUBERNETES | PBS, ALL_DEPLOY_MODES,
-         confKey = "spark.executor.cores"),
+         confKey = EXECUTOR_CORES.key),
 -      OptionAssigner(args.executorMemory, STANDALONE | MESOS | YARN | KUBERNETES, ALL_DEPLOY_MODES,
--        confKey = "spark.executor.memory"),
++      OptionAssigner(args.executorMemory, STANDALONE | MESOS | YARN | KUBERNETES | PBS, ALL_DEPLOY_MODES,
+         confKey = EXECUTOR_MEMORY.key),
 -      OptionAssigner(args.totalExecutorCores, STANDALONE | MESOS | KUBERNETES, ALL_DEPLOY_MODES,
--        confKey = "spark.cores.max"),
++      OptionAssigner(args.totalExecutorCores, STANDALONE | MESOS | KUBERNETES | PBS, ALL_DEPLOY_MODES,
+         confKey = CORES_MAX.key),
 -      OptionAssigner(args.files, LOCAL | STANDALONE | MESOS | KUBERNETES, ALL_DEPLOY_MODES,
-+      OptionAssigner(args.executorMemory, STANDALONE | MESOS | YARN | KUBERNETES | PBS,
-+        ALL_DEPLOY_MODES, confKey = "spark.executor.memory"),
-+      OptionAssigner(args.totalExecutorCores, STANDALONE | MESOS | KUBERNETES | PBS,
-+        ALL_DEPLOY_MODES, confKey = "spark.cores.max"),
 +      OptionAssigner(args.files, LOCAL | STANDALONE | MESOS | KUBERNETES | PBS, ALL_DEPLOY_MODES,
          confKey = "spark.files"),
        OptionAssigner(args.jars, LOCAL, CLIENT, confKey = "spark.jars"),
@@ -94,13 +92,13 @@ index d4055cb..d6103ac 100644
          confKey = "spark.jars"),
 -      OptionAssigner(args.driverMemory, STANDALONE | MESOS | YARN | KUBERNETES, CLUSTER,
 +      OptionAssigner(args.driverMemory, STANDALONE | MESOS | YARN | KUBERNETES | PBS, CLUSTER,
-         confKey = "spark.driver.memory"),
+         confKey = DRIVER_MEMORY.key),
 -      OptionAssigner(args.driverCores, STANDALONE | MESOS | YARN | KUBERNETES, CLUSTER,
 +      OptionAssigner(args.driverCores, STANDALONE | MESOS | YARN | KUBERNETES | PBS, CLUSTER,
-         confKey = "spark.driver.cores"),
+         confKey = DRIVER_CORES.key),
        OptionAssigner(args.supervise.toString, STANDALONE | MESOS, CLUSTER,
-         confKey = "spark.driver.supervise"),
-@@ -719,6 +730,29 @@ private[spark] class SparkSubmit extends Logging {
+         confKey = DRIVER_SUPERVISE.key),
+@@ -720,6 +731,29 @@ private[spark] class SparkSubmit extends Logging {
        }
      }
  
@@ -130,7 +128,7 @@ index d4055cb..d6103ac 100644
      // Load any properties specified through --conf and the default properties file
      for ((k, v) <- args.sparkProperties) {
        sparkConf.setIfMissing(k, v)
-@@ -882,7 +916,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
+@@ -883,7 +917,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
    private val MESOS = 4
    private val LOCAL = 8
    private val KUBERNETES = 16
@@ -140,7 +138,7 @@ index d4055cb..d6103ac 100644
  
    // Deploy modes
    private val CLIENT = 1
-@@ -905,6 +940,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
+@@ -906,6 +941,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
    private[deploy] val STANDALONE_CLUSTER_SUBMIT_CLASS = classOf[ClientApp].getName()
    private[deploy] val KUBERNETES_CLUSTER_SUBMIT_CLASS =
      "org.apache.spark.deploy.k8s.submit.KubernetesClientApplication"
@@ -150,10 +148,10 @@ index d4055cb..d6103ac 100644
    override def main(args: Array[String]): Unit = {
      val submit = new SparkSubmit() {
 diff --git a/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java b/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java
-index ce24400..6e74368 100644
+index 56edceb17b..d9941f0622 100644
 --- a/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java
 +++ b/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java
-@@ -159,6 +159,7 @@ abstract class AbstractCommandBuilder {
+@@ -163,6 +163,7 @@ abstract class AbstractCommandBuilder {
          "repl",
          "resource-managers/mesos",
          "resource-managers/yarn",
@@ -162,23 +160,23 @@ index ce24400..6e74368 100644
          "sql/core",
          "sql/hive",
 diff --git a/pom.xml b/pom.xml
-index 61321a1..882e0d0 100644
+index de14d6add8..ebf8567d00 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -2723,6 +2723,13 @@
+@@ -2729,6 +2729,13 @@
+       </modules>
      </profile>
  
-     <profile>
++    <profile>
 +      <id>pbs</id>
 +      <modules>
 +        <module>resource-managers/pbs</module>
 +      </modules>
 +    </profile>
 +
-+    <profile>
+     <profile>
        <id>hive-thriftserver</id>
        <modules>
-         <module>sql/hive-thriftserver</module>
 -- 
-2.7.4
+2.18.0
 
