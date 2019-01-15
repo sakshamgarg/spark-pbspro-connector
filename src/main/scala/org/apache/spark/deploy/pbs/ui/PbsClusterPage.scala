@@ -39,8 +39,8 @@ private[ui] class PbsClusterPage(parent: PbsClusterUI) extends WebUIPage("") wit
         parent.securityManager.checkModifyPermissions(request.getRemoteUser)) {
 
       val killFlag =
-        Option(UIUtils.stripXSS(request.getParameter("terminate"))).getOrElse("false").toBoolean
-      val id = Option(UIUtils.stripXSS(request.getParameter("id")))
+        Option(request.getParameter("terminate"))).getOrElse("false").toBoolean
+      val id = Option(request.getParameter("id"))
 
       if (id.isDefined && killFlag) {
         action(id.get)

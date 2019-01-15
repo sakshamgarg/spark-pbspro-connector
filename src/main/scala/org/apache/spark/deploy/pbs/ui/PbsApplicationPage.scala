@@ -28,7 +28,7 @@ import org.apache.spark.pbs.Utils
 private[ui] class PbsApplicationPage(parent: PbsClusterUI) extends WebUIPage("app") with Logging {
 
   def render(request: HttpServletRequest): Seq[Node] = {
-    val appId = UIUtils.stripXSS(request.getParameter("appId"))
+    val appId = request.getParameter("appId")
     val app = new PbsApplicationInfo(appId)
 
     if (app == null) {
