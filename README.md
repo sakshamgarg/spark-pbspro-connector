@@ -39,7 +39,7 @@ This expects PBSPro to be installed at `/opt/pbs`.
 In the spark project root, punch in these commands:
 ```bash
 # Clone the repo
-git clone https://github.com/UtkarshMe/Spark-PBSPro resource-managers/pbs
+git clone https://github.com/sakshamgarg/Spark-PBSPro resource-managers/pbs
 
 # Apply patch to spark (in the root directory).
 git am resource-managers/pbs/*.patch
