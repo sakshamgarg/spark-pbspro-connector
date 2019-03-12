@@ -50,6 +50,7 @@
       <scope>test</scope>
     </dependency>
 
+    <!--
     <dependency>
       <groupId>${hive.group}</groupId>
       <artifactId>hive-exec</artifactId>
@@ -60,6 +61,7 @@
       <artifactId>hive-metastore</artifactId>
       <scope>provided</scope>
     </dependency>
+    -->
 
   </dependencies>
 
