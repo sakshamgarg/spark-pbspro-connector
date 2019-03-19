@@ -36,6 +36,12 @@ bin/spark-class org.apache.spark.deploy.pbs.ui.PbsClusterUI
 
 This expects PBSPro to be installed at `/opt/pbs`.
 
+Clone the Spark repository and move to spark folder
+```bash
+git clone https://github.com/apache/spark.git
+cd spark
+```
+
 In the spark project root, punch in these commands:
 ```bash
 # Clone the repo
