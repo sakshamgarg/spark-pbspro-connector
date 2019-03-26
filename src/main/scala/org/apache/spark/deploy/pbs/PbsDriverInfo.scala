@@ -38,8 +38,9 @@ private[pbs] case class PbsDriverInfo(jobId: String) {
         ncpus = (resourceList \ "ncpus").extract[String]
         mem = (resourceList \ "mem").extract[String]
 
-        val NAME_REGEX(className) = jobName
-        name = className
+        //val NAME_REGEX(className) = jobName
+        //name = className
+        name = jobName
 
         cores = ncpus.toInt
     }
@@ -54,11 +55,17 @@ private[pbs] object PbsDriverInfo {
   val SPARK_JOB_REGEX: Regex  = """([0-9]+\.[a-z]+) +(sparkjob-[a-zA-Z\-\.]*.*)"""r
 
   def create(jobString: String): PbsDriverInfo = {
-    jobString match {
+    /*jobString match {
       case SPARK_JOB_REGEX(job, _) =>  // job is a spark job
         PbsDriverInfo(job)
       case _ =>
         null
+    }*/
+    jobString match {
+      case "" =>
+        null
+      case _ =>
+        PbsDriverInfo(jobString)
     }
   }
 }

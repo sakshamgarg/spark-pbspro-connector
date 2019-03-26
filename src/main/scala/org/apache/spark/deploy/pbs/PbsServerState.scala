@@ -31,7 +31,14 @@ private[pbs] case class PbsServerState() {
   }
 
   val drivers: Array[PbsDriverInfo] = {
-    Utils.qstat("", "")
+    /*Utils.qstat("", "")
+      .split("\n")
+      .map(PbsDriverInfo.create(_))
+      .filter(_ match {
+        case null => false
+        case _ => true
+      })*/
+    Utils.qselect()
       .split("\n")
       .map(PbsDriverInfo.create(_))
       .filter(_ match {
