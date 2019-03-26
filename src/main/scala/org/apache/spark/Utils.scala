@@ -88,4 +88,16 @@ private[spark] object Utils {
   def grep(input: String, output: String): String = {
     runCommand(s"grep \'$input\' \'$output\'")
   }
+
+  /**
+   * Select specified PBS jobs
+   */
+  def qselect(): String = {
+    try {
+      runCommand(s"$prefix/qselect")
+    } catch {
+      case e: java.lang.RuntimeException =>
+        ""
+    }
+  }
 }
