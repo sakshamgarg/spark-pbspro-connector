@@ -11,4 +11,4 @@ branches:
 install: true
 
 script:
-  - travis_wait ./check_build.sh
+  - travis_wait 40 ./check_build.sh

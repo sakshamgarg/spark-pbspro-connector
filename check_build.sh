@@ -1,7 +1,6 @@
 #!/bin/sh
 
 spark_repo="https://github.com/apache/spark"
-pbs_repo="https://github.com/PBSPro/spark-pbspro-connector"
 
 cleanup() {
   cd /
@@ -14,14 +13,19 @@ quit() {
   exit 1
 }
 
+if [ -z "$TRAVIS_BUILD_DIR" ]; then
+	pbs_patch_dir=$(pwd)
+else
+	pbs_patch_dir=$TRAVIS_BUILD_DIR
+fi
 
 # clone spark
 cd /tmp
 git clone $spark_repo                       || quit "Unable to clone spark repo"
 cd spark
 
-# clone pbs
-git clone $pbs_repo resource-managers/pbs   || quit "Unable to clone pbs repo"
+# copy pbs_patch_dir
+mv $pbs_patch_dir resource-managers/pbs     || quit "Unable to copy pbs_patch repo"
 
 # apply patches
 git am resource-managers/pbs/*.patch        || quit "Unable to apply patch to spark"
