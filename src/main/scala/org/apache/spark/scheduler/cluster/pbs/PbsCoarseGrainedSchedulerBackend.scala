@@ -43,6 +43,7 @@ import scala.concurrent.Future
 import org.apache.spark.{SecurityManager, SparkConf, SparkContext}
 import org.apache.spark.internal.Logging
 import org.apache.spark.executor.pbs.PbsExecutorInfo
+import org.apache.spark.resource.ResourceProfile
 import org.apache.spark.scheduler.{TaskScheduler, TaskSchedulerImpl}
 import org.apache.spark.scheduler.cluster.{CoarseGrainedSchedulerBackend, SchedulerBackendUtils}
 
@@ -115,9 +116,11 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
    * @param requestedTotal number of Executors wanted (including already allocated)
    * @return if the request is acknowledged
    */
-  override def doRequestTotalExecutors(requestedTotal: Int): Future[Boolean] = Future.successful {
-    logInfo(requestedTotal + " executors requested")
-    PbsSchedulerUtils.startExecutors(sparkContext, requestedTotal)
+  override def doRequestTotalExecutors(
+      resourceProfileToTotalExecs: Map[ResourceProfile, Int]): Future[Boolean] = Future.successful {
+    //logInfo(requestedTotal + " executors requested")
+    logInfo(resourceProfileToTotalExecs(defaultProfile) + " executors requested")
+    PbsSchedulerUtils.startExecutors(sparkContext, 2)
   }
 
 }
