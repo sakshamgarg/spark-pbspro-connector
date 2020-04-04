@@ -1,15 +1,9 @@
-#!/bin/sh
+#!/bin/sh -x
 
 spark_repo="https://github.com/apache/spark"
 
-cleanup() {
-  cd /
-  rm -rf /tmp/spark
-}
-
 quit() {
   echo "$1"
-  cleanup
   exit 1
 }
 
@@ -32,6 +26,4 @@ git am resource-managers/pbs/*.patch        || quit "Unable to apply patch to sp
 
 # build
 export MAVEN_SKIP_RC=1
-build/mvn -q -DskipTests -Ppbs package      || quit "Unable to build spark with pbs"
-
-cleanup
+build/mvn -q -DskipTests -Ppbs clean package      || quit "Unable to build spark with pbs"
