@@ -119,7 +119,8 @@ private[spark] class PbsCoarseGrainedSchedulerBackend(
   override def doRequestTotalExecutors(
       resourceProfileToTotalExecs: Map[ResourceProfile, Int]): Future[Boolean] = Future.successful {
     //logInfo(requestedTotal + " executors requested")
-    logInfo(resourceProfileToTotalExecs(defaultProfile) + " executors requested")
+    //logInfo(resourceProfileToTotalExecs(defaultProfile) + " executors requested")
+    logInfo("2 executors requested")
     PbsSchedulerUtils.startExecutors(sparkContext, 2)
   }
 

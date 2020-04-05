@@ -7,8 +7,9 @@ jdk: oraclejdk8
 branches:
   only:
     - master
+    - testing
 
 install: true
 
 script:
-  - travis_wait 40 ./check_build.sh
+  - travis_wait 60 ./check_build.sh
