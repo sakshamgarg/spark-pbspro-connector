@@ -1,3 +1,4 @@
+dist: trusty
 language: scala
 scala:
   - 2.12.7
@@ -10,4 +11,4 @@ branches:
 install: true
 
 script:
-  - travis_wait ./check_build.sh
+  - travis_wait 40 ./check_build.sh
