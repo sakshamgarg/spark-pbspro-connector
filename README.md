@@ -1,6 +1,6 @@
 # Spark PBSPro Support
 This adds support for [PBS Professional](https://github.com/pbspro/pbspro)
-HPC resource manager in [Apache Spark](https://github.com/apache/spark).
+HPC resource manager in [Apache Spark](https://github.com/apache/spark)
 
 
 ### Status of build with latest Spark
@@ -12,37 +12,45 @@ HPC resource manager in [Apache Spark](https://github.com/apache/spark).
 You can run Spark on the PBS cluster just by adding "--master pbs" while submitting as follows:
 ```bash
 # start spark shell. only in client mode
-./bin/spark-shell --master pbs
+$SPARK_HOME/bin/spark-shell --master pbs
 
 # submit a spark application in client mode
-./bin/spark-submit --master pbs --deploy-mode client --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.1.0-SNAPSHOT.jar 100
+$SPARK_HOME/bin/spark-submit --master pbs --deploy-mode client --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.1.0-SNAPSHOT.jar 100
 
 # submit a spark application in cluster mode
-./bin/spark-submit --master pbs --deploy-mode cluster --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.1.0-SNAPSHOT.jar 100
+$SPARK_HOME/bin/spark-submit --master pbs --deploy-mode cluster --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.1.0-SNAPSHOT.jar 100
 ```
 
-You can also just append `spark.master pbs` in `conf/spark-defaults.conf` to avoid adding
-`--master pbs` on every submit.
+Optional: See installation step appending `spark.master pbs` in `conf/spark-defaults.conf` to avoid adding `--master pbs` on every submit.
 
 
 To run Spark UI with PBS cluster:
 ```bash
-bin/spark-class org.apache.spark.deploy.pbs.ui.PbsClusterUI
+$SPARK_HOME/bin/spark-class org.apache.spark.deploy.pbs.ui.PbsClusterUI
 ```
-
 
 
 ## Installation
 
-This expects PBSPro to be installed at `/opt/pbs`.
+### Requirements
+1. PBS Professional must be installed in default locaiton, at `/opt/pbs`.
+2. Confirm host resources (CPU, Memory, and Disk) are sufficient for Spark project and build. More information about these resource requirements can be found at https://spark.apache.org/docs/latest/hardware-provisioning.html
+3. Spark project must be accessible by the submission host (PBS Client) and execution host(s) (PBS MoM), and is a consistent path on all hosts. 
 
-Clone the Spark repository and move to spark folder
+
+### Steps
+Clone the Spark repository to the host. 
 ```bash
 git clone https://github.com/apache/spark.git
+```
+
+Change directory to spark folder. 
+The absolute PATH of this directory will be known as $SPARK_HOME
+```bash
 cd spark
 ```
 
-In the spark project root, punch in these commands:
+Execute these commands:
 ```bash
 # Clone the repo
 git clone https://github.com/PBSPro/spark-pbspro-connector resource-managers/pbs
@@ -55,12 +63,23 @@ git am resource-managers/pbs/*.patch
 build/mvn -DskipTests -Ppbs package
 ```
 
+Update `conf/sparks-default.conf` by adding executor home to your configuration:
+
+
 Additional information for building spark can be found here:
 
 https://spark.apache.org/docs/latest/building-spark.html#building-spark
 
 Add executor home to your configuration:
+
 ```bash
 # in file conf/spark-defaults.conf add line:
-spark.pbs.executor.home "SPARK INSTALLATION DIRECTORY PATH IN PBS MOMS"
+spark.pbs.executor.home /common/path/to/spark/folder/on/hosts
+```
+
+Optional: Append `spark.master pbs` in `conf/spark-defaults.conf` to avoid adding `--master pbs` on every submit.
+```bash
+# in file conf/spark-defaults.conf:
+spark.pbs.executor.home /common/path/to/spark/folder/on/hosts
+spark.master pbs
 ```
