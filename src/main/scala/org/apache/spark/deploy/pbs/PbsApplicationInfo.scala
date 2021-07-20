@@ -36,9 +36,7 @@
  *
  */
  
- package org.apache.spark.deploy.pbs
-
-import org.apache.spark.pbs.Utils
+package org.apache.spark.deploy.pbs
 
 import org.apache.spark.executor.pbs.PbsExecutorInfo
 

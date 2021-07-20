@@ -39,7 +39,6 @@
 package org.apache.spark.deploy.pbs
 
 import org.apache.spark.pbs.Utils
-import org.apache.spark.deploy.pbs.PbsDriverInfo
 
 private[pbs] case class PbsServerState() {
   val serverStatus: String = {

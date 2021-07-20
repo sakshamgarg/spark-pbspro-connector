@@ -15,10 +15,10 @@ You can run Spark on the PBS cluster just by adding "--master pbs" while submitt
 $SPARK_HOME/bin/spark-shell --master pbs
 
 # submit a spark application in client mode
-$SPARK_HOME/bin/spark-submit --master pbs --deploy-mode client --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.1.0-SNAPSHOT.jar 100
+$SPARK_HOME/bin/spark-submit --master pbs --deploy-mode client --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.3.0-SNAPSHOT.jar 100
 
 # submit a spark application in cluster mode
-$SPARK_HOME/bin/spark-submit --master pbs --deploy-mode cluster --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.1.0-SNAPSHOT.jar 100
+$SPARK_HOME/bin/spark-submit --master pbs --deploy-mode cluster --class org.apache.spark.examples.SparkPi $SPARK_HOME/examples/target/scala-2.12/jars/spark-examples_2.12-3.3.0-SNAPSHOT.jar 100
 ```
 
 Optional: See installation step appending `spark.master pbs` in `conf/spark-defaults.conf` to avoid adding `--master pbs` on every submit.

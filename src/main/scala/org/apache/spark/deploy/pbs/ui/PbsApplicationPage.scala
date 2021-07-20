@@ -43,7 +43,7 @@ import scala.xml.Node
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.ui.{WebUIPage, UIUtils}
-import org.apache.spark.deploy.pbs.{PbsServerState, PbsApplicationInfo}
+import org.apache.spark.deploy.pbs.PbsApplicationInfo
 import org.apache.spark.pbs.Utils
 
 private[ui] class PbsApplicationPage(parent: PbsClusterUI) extends WebUIPage("app") with Logging {

@@ -1,23 +1,24 @@
-From 7825997f76727bfc04636d47a1aa604af792181a Mon Sep 17 00:00:00 2001
+From 26d46b51caa08713d1abf3bbe0eff562b064f9bc Mon Sep 17 00:00:00 2001
 From: Saksham Garg <garg.saksham@yahoo.com>
 Date: Sat, 4 Jan 2020 14:58:06 +0530
 Subject: [PATCH] Add PBS Pro as an external resource manager
 
 ---
- assembly/pom.xml                                   | 10 ++++
- .../org/apache/spark/deploy/SparkSubmit.scala      | 55 ++++++++++++++++++----
- .../spark/launcher/AbstractCommandBuilder.java     |  1 +
- pom.xml                                            |  7 +++
+ assembly/pom.xml                              | 10 ++++
+ .../org/apache/spark/deploy/SparkSubmit.scala | 55 ++++++++++++++++---
+ .../launcher/AbstractCommandBuilder.java      |  1 +
+ pom.xml                                       |  7 +++
  4 files changed, 64 insertions(+), 9 deletions(-)
 
 diff --git a/assembly/pom.xml b/assembly/pom.xml
-index 68ebfad..86115ad 100644
+index 74c2f44121..8751511db9 100644
 --- a/assembly/pom.xml
 +++ b/assembly/pom.xml
-@@ -149,6 +149,16 @@
+@@ -152,6 +152,16 @@
+         </dependency>
        </dependencies>
      </profile>
-     <profile>
++    <profile>
 +      <id>pbs</id>
 +      <dependencies>
 +        <dependency>
@@ -27,12 +28,11 @@ index 68ebfad..86115ad 100644
 +        </dependency>
 +      </dependencies>
 +    </profile>
-+    <profile>
+     <profile>
        <id>kubernetes</id>
        <dependencies>
-         <dependency>
 diff --git a/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala b/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
-index 8a03af5..720ee4b 100644
+index a65be54568..e4d20898ec 100644
 --- a/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
 +++ b/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
 @@ -234,8 +234,9 @@ private[spark] class SparkSubmit extends Logging {
@@ -70,7 +70,7 @@ index 8a03af5..720ee4b 100644
  
      if (!isMesosCluster && !isStandAloneCluster) {
        // Resolve maven dependencies if there are any and add classpath to jars. Add them to py-files
-@@ -596,20 +607,20 @@ private[spark] class SparkSubmit extends Logging {
+@@ -628,22 +639,22 @@ private[spark] class SparkSubmit extends Logging {
        // Other options
        OptionAssigner(args.numExecutors, YARN | KUBERNETES, ALL_DEPLOY_MODES,
          confKey = EXECUTOR_INSTANCES.key),
@@ -86,6 +86,8 @@ index 8a03af5..720ee4b 100644
 -      OptionAssigner(args.files, LOCAL | STANDALONE | MESOS | KUBERNETES, ALL_DEPLOY_MODES,
 +      OptionAssigner(args.files, LOCAL | STANDALONE | MESOS | KUBERNETES | PBS, ALL_DEPLOY_MODES,
          confKey = FILES.key),
+       OptionAssigner(args.archives, LOCAL | STANDALONE | MESOS | KUBERNETES, ALL_DEPLOY_MODES,
+         confKey = ARCHIVES.key),
        OptionAssigner(args.jars, LOCAL, CLIENT, confKey = JARS.key),
 -      OptionAssigner(args.jars, STANDALONE | MESOS | KUBERNETES, ALL_DEPLOY_MODES,
 +      OptionAssigner(args.jars, STANDALONE | MESOS | KUBERNETES | PBS, ALL_DEPLOY_MODES,
@@ -98,7 +100,7 @@ index 8a03af5..720ee4b 100644
          confKey = DRIVER_CORES.key),
        OptionAssigner(args.supervise.toString, STANDALONE | MESOS, CLUSTER,
          confKey = DRIVER_SUPERVISE.key),
-@@ -775,6 +786,29 @@ private[spark] class SparkSubmit extends Logging {
+@@ -813,6 +824,29 @@ private[spark] class SparkSubmit extends Logging {
        }
      }
  
@@ -128,7 +130,7 @@ index 8a03af5..720ee4b 100644
      // Load any properties specified through --conf and the default properties file
      for ((k, v) <- args.sparkProperties) {
        sparkConf.setIfMissing(k, v)
-@@ -958,7 +992,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
+@@ -994,7 +1028,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
    private val MESOS = 4
    private val LOCAL = 8
    private val KUBERNETES = 16
@@ -138,7 +140,7 @@ index 8a03af5..720ee4b 100644
  
    // Deploy modes
    private val CLIENT = 1
-@@ -981,6 +1016,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
+@@ -1017,6 +1052,8 @@ object SparkSubmit extends CommandLineUtils with Logging {
    private[deploy] val STANDALONE_CLUSTER_SUBMIT_CLASS = classOf[ClientApp].getName()
    private[deploy] val KUBERNETES_CLUSTER_SUBMIT_CLASS =
      "org.apache.spark.deploy.k8s.submit.KubernetesClientApplication"
@@ -148,10 +150,10 @@ index 8a03af5..720ee4b 100644
    override def main(args: Array[String]): Unit = {
      val submit = new SparkSubmit() {
 diff --git a/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java b/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java
-index 3ae4633..e9ec28f 100644
+index 24ad9cbdba..b5f2c08f98 100644
 --- a/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java
 +++ b/launcher/src/main/java/org/apache/spark/launcher/AbstractCommandBuilder.java
-@@ -163,6 +163,7 @@ abstract class AbstractCommandBuilder {
+@@ -159,6 +159,7 @@ abstract class AbstractCommandBuilder {
          "repl",
          "resource-managers/mesos",
          "resource-managers/yarn",
@@ -160,23 +162,23 @@ index 3ae4633..e9ec28f 100644
          "sql/core",
          "sql/hive",
 diff --git a/pom.xml b/pom.xml
-index e72fcd9..6b62a7d 100644
+index aa69c0eb7e..5eea259e54 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -2999,6 +2999,13 @@
+@@ -3308,6 +3308,13 @@
+       </modules>
      </profile>
  
-     <profile>
++    <profile>
 +      <id>pbs</id>
 +      <modules>
 +        <module>resource-managers/pbs</module>
 +      </modules>
 +    </profile>
 +
-+    <profile>
+     <profile>
        <id>hive-thriftserver</id>
        <modules>
-         <module>sql/hive-thriftserver</module>
 -- 
-1.8.3.1
+2.27.0
 

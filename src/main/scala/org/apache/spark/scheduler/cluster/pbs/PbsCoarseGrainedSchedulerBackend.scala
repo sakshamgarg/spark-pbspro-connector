@@ -40,9 +40,8 @@ package org.apache.spark.scheduler.cluster.pbs
 
 import scala.concurrent.Future
 
-import org.apache.spark.{SecurityManager, SparkConf, SparkContext}
+import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
-import org.apache.spark.executor.pbs.PbsExecutorInfo
 import org.apache.spark.resource.ResourceProfile
 import org.apache.spark.scheduler.{TaskScheduler, TaskSchedulerImpl}
 import org.apache.spark.scheduler.cluster.{CoarseGrainedSchedulerBackend, SchedulerBackendUtils}

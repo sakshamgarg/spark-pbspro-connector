@@ -42,6 +42,7 @@ import org.json4s.jackson.JsonMethods
 
 import scala.util.matching.Regex
 import org.apache.spark.pbs.Utils
+import scala.language.postfixOps
 
 private[pbs] case class PbsDriverInfo(jobId: String) {
 
